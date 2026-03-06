@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Attendance System</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #f3f4f6; }
+        #signature-pad {
+            border: 2px dashed #9ca3af;
+            border-radius: 0.5rem;
+            width: 100%;
+            height: 200px;
+            background-color: #ffffff;
+            touch-action: none; /* Prevents scrolling while signing on mobile */
+            cursor: crosshair;
+        }
+        .header-bg { background-color: #93c5fd; }
+        .btn-primary { background-color: #2563eb; color: white; }
+        .btn-primary:hover { background-color: #1d4ed8; }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8 text-gray-800 font-sans">
+
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+        
+        <!-- Header -->
+        <div class="p-6 border-b flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold tracking-wider text-gray-900">MEETING ATTENDANCE</h1>
+                <p class="text-sm text-gray-500 mt-1">Taytay Doctors Multispecialty Hospital</p>
+            </div>
+            <!-- Live Clock (Just for UI aesthetics, backend handles actual saving time) -->
+            <div class="text-right text-gray-600 font-medium" id="live-clock">
+                --:-- --
+            </div>
+        </div>
+
+        <!-- SECTION 1: Meeting Setup (Sticky Details) -->
+        <div id="setup-section" class="p-6 md:p-8 hidden">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Step 1: Setup Meeting Details</h2>
+            <p class="text-sm text-gray-500 mb-6">Enter the meeting details once. It will be saved for all subsequent attendees until you change it.</p>
+            
+            <form id="setup-form" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Subject / Title</label>
+                        <input type="text" id="setup-subject" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Venue</label>
+                        <input type="text" id="setup-venue" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Moderator</label>
+                        <input type="text" id="setup-moderator" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                </div>
+                <button type="submit" class="w-full btn-primary p-3 rounded-lg font-semibold mt-6 transition duration-200">Start Attendance</button>
+            </form>
+        </div>
+
+        <!-- SECTION 2: Participant Form -->
+        <div id="attendance-section" class="hidden">
+            
+            <!-- Sticky Meeting Info Banner -->
+            <div class="header-bg p-4 flex flex-col md:flex-row justify-between items-start md:items-center">
+                <div class="text-sm text-gray-900 grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-2 w-full">
+                    <div><span class="font-bold">SUBJECT:</span> <span id="display-subject"></span></div>
+                    <div><span class="font-bold">VENUE:</span> <span id="display-venue"></span></div>
+                    <div><span class="font-bold">MODERATOR:</span> <span id="display-moderator"></span></div>
+                </div>
+                <button id="btn-change-setup" class="mt-4 md:mt-0 text-xs bg-white text-blue-800 px-3 py-1 rounded shadow hover:bg-blue-50 transition whitespace-nowrap">
+                    Change Details
+                </button>
+            </div>
+
+            <div class="p-6 md:p-8">
+                <h2 class="text-xl font-semibold mb-6 text-gray-700">Participant Sign-In</h2>
+                
+                <form id="attendance-form" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                            <input type="text" id="participant-name" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                            <input type="text" id="participant-department" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                            <input type="email" id="participant-email" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Signature Pad -->
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1 flex justify-between">
+                            <span>Signature <span class="text-red-500">*</span></span>
+                            <button type="button" id="btn-clear-sig" class="text-xs text-red-500 hover:text-red-700">Clear Signature</button>
+                        </label>
+                        <canvas id="signature-pad"></canvas>
+                        <p class="text-xs text-gray-400 mt-1">Please sign within the box above.</p>
+                    </div>
+
+                    <button type="submit" id="submit-btn" class="w-full btn-primary p-4 rounded-lg font-bold text-lg mt-6 shadow-lg transition duration-200 flex justify-center items-center">
+                        Submit Attendance
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Success Toast Modal -->
+        <div id="success-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+            <div class="bg-white p-8 rounded-xl shadow-2xl text-center max-w-sm w-full mx-4 transform scale-95 transition-transform duration-300">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Thank You!</h3>
+                <p class="text-gray-600 mb-6" id="success-msg-name">Your attendance has been recorded.</p>
+                <button id="btn-next-person" class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700">Next Person</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ==========================================
+        // CONFIGURATION: PASTE YOUR APP SCRIPT URL HERE
+        // ==========================================
+        const APPS_SCRIPT_URL = 'YOUR_WEB_APP_URL_HERE'; 
+        
+        // DOM Elements
+        const setupSection = document.getElementById('setup-section');
+        const attendanceSection = document.getElementById('attendance-section');
+        const setupForm = document.getElementById('setup-form');
+        const attendanceForm = document.getElementById('attendance-form');
+        const btnChangeSetup = document.getElementById('btn-change-setup');
+        const submitBtn = document.getElementById('submit-btn');
+        const successModal = document.getElementById('success-modal');
+        const btnNextPerson = document.getElementById('btn-next-person');
+
+        // State Management
+        let meetingDetails = JSON.parse(localStorage.getItem('meetingDetails'));
+
+        // Init UI
+        function checkState() {
+            if (meetingDetails && meetingDetails.subject) {
+                // Populate banners
+                document.getElementById('display-subject').innerText = meetingDetails.subject;
+                document.getElementById('display-venue').innerText = meetingDetails.venue;
+                document.getElementById('display-moderator').innerText = meetingDetails.moderator;
+                
+                setupSection.classList.add('hidden');
+                attendanceSection.classList.remove('hidden');
+                resizeCanvas(); // Ensure canvas fits visible container
+            } else {
+                setupSection.classList.remove('hidden');
+                attendanceSection.classList.add('hidden');
+            }
+        }
+        checkState();
+
+        // Handle Setup Submit
+        setupForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            meetingDetails = {
+                subject: document.getElementById('setup-subject').value,
+                venue: document.getElementById('setup-venue').value,
+                moderator: document.getElementById('setup-moderator').value
+            };
+            localStorage.setItem('meetingDetails', JSON.stringify(meetingDetails));
+            checkState();
+        });
+
+        // Handle Change Details
+        btnChangeSetup.addEventListener('click', () => {
+            if(confirm("Are you sure you want to change the meeting details?")) {
+                localStorage.removeItem('meetingDetails');
+                meetingDetails = null;
+                // Pre-fill setup form with old values for convenience
+                document.getElementById('setup-subject').value = document.getElementById('display-subject').innerText;
+                document.getElementById('setup-venue').value = document.getElementById('display-venue').innerText;
+                document.getElementById('setup-moderator').value = document.getElementById('display-moderator').innerText;
+                checkState();
+            }
+        });
+
+        // ==========================================
+        // SIGNATURE PAD LOGIC
+        // ==========================================
+        const canvas = document.getElementById('signature-pad');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let hasSigned = false;
+
+        function resizeCanvas() {
+            // Only resize if canvas is visible to prevent 0 width/height
+            if(attendanceSection.classList.contains('hidden')) return;
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            ctx.scale(ratio, ratio);
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        function getCoordinates(e) {
+            const rect = canvas.getBoundingClientRect();
+            if (e.touches && e.touches.length > 0) {
+                return {
+                    x: e.touches[0].clientX - rect.left,
+                    y: e.touches[0].clientY - rect.top
+                };
+            }
+            return {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            hasSigned = true;
+            const coords = getCoordinates(e);
+            ctx.beginPath();
+            ctx.moveTo(coords.x, coords.y);
+            e.preventDefault(); // prevent scrolling on touch
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const coords = getCoordinates(e);
+            ctx.lineTo(coords.x, coords.y);
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+            e.preventDefault();
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        // Mouse Events
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        // Touch Events
+        canvas.addEventListener('touchstart', startDrawing, { passive: false });
+        canvas.addEventListener('touchmove', draw, { passive: false });
+        canvas.addEventListener('touchend', stopDrawing);
+
+        // Clear Signature
+        document.getElementById('btn-clear-sig').addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hasSigned = false;
+        });
+
+        // ==========================================
+        // FORM SUBMISSION TO APPS SCRIPT
+        // ==========================================
+        attendanceForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (APPS_SCRIPT_URL === 'YOUR_WEB_APP_URL_HERE') {
+                alert("Error: You need to paste your Google Apps Script Web App URL into the code first!");
+                return;
+            }
+
+            if (!hasSigned) {
+                alert("Please provide your signature before submitting.");
+                return;
+            }
+
+            const payload = {
+                subject: meetingDetails.subject,
+                venue: meetingDetails.venue,
+                moderator: meetingDetails.moderator,
+                name: document.getElementById('participant-name').value,
+                department: document.getElementById('participant-department').value,
+                email: document.getElementById('participant-email').value,
+                signature: canvas.toDataURL() // Converts canvas to base64 image string
+            };
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg> Submitting...`;
+
+            try {
+                // We use mode: 'no-cors' or POST as text/plain to avoid Google CORS preflight blocks on standard fetches
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8',
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                // Show Success Modal
+                document.getElementById('success-msg-name').innerText = `Thank you, ${payload.name}! Your attendance has been recorded.`;
+                successModal.classList.remove('hidden');
+
+                // Clear Form for next person
+                attendanceForm.reset();
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                hasSigned = false;
+
+            } catch (error) {
+                console.error("Submission error:", error);
+                alert("An error occurred while submitting. Please check your internet connection and try again.");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = "Submit Attendance";
+            }
+        });
+
+        // Next Person Button
+        btnNextPerson.addEventListener('click', () => {
+            successModal.classList.add('hidden');
+            // Scroll back to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Live Clock UI logic
+        setInterval(() => {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const dateString = now.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+            document.getElementById('live-clock').innerText = `${dateString} | ${timeString}`;
+        }, 1000);
+
+    </script>
+</body>
+</html>
