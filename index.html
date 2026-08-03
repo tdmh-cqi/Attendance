@@ -64,20 +64,36 @@
             -webkit-user-drag: none;
         }
 
-        /* Smoother Fade Transition (Replaces PS Vita Peel) */
+        /* TRUE PS VITA PEEL EFFECT */
         .theme-overlay {
             position: fixed;
-            inset: 0;
-            background: #1e3a8a;
+            top: -10vh; right: -10vw; bottom: -10vh; left: -10vw; /* Bleed edges */
             z-index: 9999;
-            opacity: 0;
             pointer-events: none;
-            transition: opacity 0.4s ease-in-out;
+            opacity: 0;
+            box-shadow: -30px 30px 80px rgba(0,0,0,0.6); /* Deep shadow for 3D depth */
         }
-        .dark .theme-overlay { background: #0f172a; }
-        .theme-overlay.active {
+        
+        .peel-out {
             opacity: 1;
             pointer-events: all;
+            animation: psVitaPeel 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        @keyframes psVitaPeel {
+            0% { 
+                transform: translate(0, 0) rotate(0deg); 
+                border-top-right-radius: 0;
+                border-bottom-left-radius: 0;
+            }
+            100% { 
+                /* Drag down and left diagonally */
+                transform: translate(-120vw, 120vh) rotate(-15deg); 
+                /* Top right corner curls massively, bottom left rounds out */
+                border-top-right-radius: 100vw;
+                border-bottom-left-radius: 20vw;
+                opacity: 0.8; 
+            }
         }
 
         /* Notifications & Spinners */
@@ -104,37 +120,65 @@
     <!-- Smooth Theme Transition Overlay -->
     <div id="theme-overlay" class="theme-overlay"></div>
 
-    <!-- Top Nav Controls (Clock moved here) -->
-    <div class="w-full max-w-5xl flex justify-between items-center p-4 md:pt-6 md:pb-4">
+    <!-- Top Nav Controls -->
+    <div class="w-full max-w-5xl flex justify-between items-center p-4 md:pt-6 md:pb-4 mx-auto">
         <div class="flex flex-col">
             <div id="live-time" class="text-xl md:text-2xl font-black text-tdmh-blue dark:text-blue-300 tabular-nums leading-none">--:--</div>
             <div id="live-date" class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">--/--/----</div>
         </div>
-        <div class="flex gap-3">
-            <button id="theme-toggle" class="p-2.5 rounded-full bg-white dark:bg-slate-800 shadow-sm border border-gray-200 dark:border-slate-700 hover:shadow-md transition-all text-gray-500 hover:text-tdmh-blue dark:text-gray-400 dark:hover:text-blue-400">
-                <svg id="moon-icon" class="w-5 h-5 hidden dark:block" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
-                <svg id="sun-icon" class="w-5 h-5 block dark:hidden" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path></svg>
+        <div class="flex gap-2 md:gap-3 items-center">
+            <button id="theme-toggle" class="p-2 md:p-2.5 rounded-full bg-white dark:bg-slate-800 shadow-sm border border-gray-200 dark:border-slate-700 hover:shadow-md transition-all text-gray-500 hover:text-tdmh-blue dark:text-gray-400 dark:hover:text-blue-400">
+                <svg id="moon-icon" class="w-4 h-4 md:w-5 md:h-5 hidden dark:block" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                <svg id="sun-icon" class="w-4 h-4 md:w-5 md:h-5 block dark:hidden" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path></svg>
             </button>
-            <button id="nav-login-btn" class="px-5 py-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-tdmh-blue dark:text-blue-400 rounded-full shadow-sm hover:shadow-md transition-all text-sm font-semibold tracking-wide">
-                Staff Portal
+            <div id="nav-login-group" class="flex gap-2">
+                <button id="btn-nav-dept" class="px-3 md:px-5 py-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-tdmh-blue dark:text-blue-400 rounded-lg shadow-sm hover:shadow-md transition-all text-xs md:text-sm font-bold tracking-wide">
+                    Dept Login
+                </button>
+                <button id="btn-nav-admin" class="px-3 md:px-5 py-2 bg-tdmh-blue dark:bg-blue-600 border border-transparent text-white rounded-lg shadow-sm hover:bg-blue-800 dark:hover:bg-blue-500 transition-all text-xs md:text-sm font-bold tracking-wide">
+                    Admin Login
+                </button>
+            </div>
+            <button id="nav-logout-btn" class="px-5 py-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 text-red-600 dark:text-red-400 rounded-lg shadow-sm hover:shadow-md transition-all text-sm font-bold tracking-wide hidden">
+                Logout
             </button>
+        </div>
+    </div>
+
+    <div class="w-full max-w-5xl bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-slate-700 relative mx-auto mx-4 md:mx-auto">
+        
+        <!-- Header Section (Centered & Refined) -->
+        <div class="p-8 md:py-10 border-b border-gray-100 dark:border-slate-700 flex flex-col items-center justify-center text-center bg-gradient-to-b from-tdmh-light/30 to-transparent dark:from-slate-800/80 dark:to-transparent w-full">
+            
+            <div class="mb-4 transition-all duration-300 dark:bg-white/95 dark:py-2 dark:px-4 dark:rounded-2xl dark:shadow-[0_0_30px_rgba(255,255,255,0.05)] inline-flex items-center justify-center">
+                <img src="images%20logo/tdmh-logo.png" alt="TDMH Logo" class="h-12 md:h-16 w-auto object-contain" onerror="this.src='https://placehold.co/400x120/1e3a8a/ffffff?text=TDMH+Logo'">
+            </div>
+            
+            <h1 class="text-xl md:text-2xl font-semibold tracking-wider text-tdmh-blue dark:text-blue-300 uppercase">Attendance</h1>
+        </div>
+
+        <!-- ==================== PUBLIC SETUP VIEW ==================== -->
+        <div id="view-setup" class="p-8 md:p-12 transition-opacity">
+            <div class="text-center mb-10 max-w-lg mx-auto flex flex-col items-center justify-center w-full">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Meeting Configuration</h2>
+                <p class="text-sm md:text-base text-gray-500 dark:text-gray-400 mt-2 text-center w-full block">Select a saved template or enter the details manually below.</p>
+            </div>
             <button id="nav-logout-btn" class="px-5 py-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 text-red-600 dark:text-red-400 rounded-full shadow-sm hover:shadow-md transition-all text-sm font-semibold tracking-wide hidden">
                 Logout
             </button>
         </div>
     </div>
 
-    <div class="w-full max-w-5xl bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-slate-700 relative">
+    <div class="w-full max-w-5xl bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-slate-700 relative mx-auto mx-4 md:mx-auto">
         
-        <!-- Header Section (Perfectly Centered) -->
-        <div class="p-10 md:py-12 border-b border-gray-100 dark:border-slate-700 flex flex-col items-center justify-center text-center bg-gradient-to-b from-tdmh-light/40 to-transparent dark:from-slate-800/80 dark:to-transparent">
+        <!-- Header Section (Perfectly Centered & Dialed Down) -->
+        <div class="p-8 md:py-10 border-b border-gray-100 dark:border-slate-700 flex flex-col items-center justify-center text-center bg-gradient-to-b from-tdmh-light/30 to-transparent dark:from-slate-800/80 dark:to-transparent">
             
-            <!-- Smart Logo Container (adapts for contrast) -->
-            <div class="mb-6 transition-all duration-300 dark:bg-white/95 dark:py-4 dark:px-6 dark:rounded-3xl dark:shadow-[0_0_30px_rgba(255,255,255,0.05)] inline-block">
-                <img src="images%20logo/tdmh-logo.png" alt="TDMH Logo" class="h-28 md:h-40 w-auto object-contain" onerror="this.src='https://placehold.co/400x150/1e3a8a/ffffff?text=TDMH+Logo'">
+            <div class="mb-5 transition-all duration-300 dark:bg-white/95 dark:py-3 dark:px-5 dark:rounded-2xl dark:shadow-[0_0_30px_rgba(255,255,255,0.05)] inline-block flex items-center justify-center">
+                <img src="images%20logo/tdmh-logo.png" alt="TDMH Logo" class="h-16 md:h-24 w-auto object-contain" onerror="this.src='https://placehold.co/400x120/1e3a8a/ffffff?text=TDMH+Logo'">
             </div>
             
-            <h1 class="text-4xl md:text-5xl font-black tracking-tight text-tdmh-blue dark:text-blue-400">ATTENDANCE</h1>
+            <h1 class="text-2xl md:text-3xl font-bold tracking-wide text-tdmh-blue dark:text-blue-300">ATTENDANCE PORTAL</h1>
         </div>
 
         <!-- ==================== PUBLIC SETUP VIEW ==================== -->
@@ -177,19 +221,19 @@
         </div>
 
         <!-- ==================== QR CODE DISPLAY VIEW ==================== -->
-        <div id="view-qrcode" class="hidden p-8 md:p-16 flex-col items-center text-center">
-            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-3">Meeting Ready!</h2>
-            <p class="text-gray-500 dark:text-gray-400 mb-10 max-w-md text-base">Attendees can scan this QR code to join from their personal devices, or you can proceed to the shared sign-in screen below.</p>
+        <div id="view-qrcode" class="hidden p-8 md:p-16 flex flex-col items-center justify-center text-center w-full mx-auto">
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-3 text-center w-full block">Meeting Ready!</h2>
+            <p class="text-gray-500 dark:text-gray-400 mb-10 max-w-md text-base text-center mx-auto block w-full">Attendees can scan this QR code to join from their personal devices, or you can proceed to the shared sign-in screen below.</p>
             
-            <div class="bg-white p-6 rounded-3xl shadow-xl border border-gray-100 inline-block mb-10 transition-transform hover:scale-105">
+            <div class="bg-white p-6 rounded-3xl shadow-xl border border-gray-100 inline-block mb-10 transition-transform hover:scale-105 mx-auto flex justify-center items-center">
                 <div id="qr-container"></div>
             </div>
             
-            <div class="w-full max-w-sm flex flex-col items-center">
-                <button id="btn-proceed-signin" class="w-full bg-green-600 hover:bg-green-700 text-white p-4 rounded-xl font-bold text-lg shadow-lg shadow-green-900/20 transition-all active:scale-[0.98]">
+            <div class="w-full max-w-sm flex flex-col items-center justify-center mx-auto mt-2">
+                <button id="btn-proceed-signin" class="w-full block bg-green-600 hover:bg-green-700 text-white p-4 rounded-xl font-bold text-lg shadow-lg shadow-green-900/20 transition-all active:scale-[0.98] text-center">
                     Open Shared Sign-in Form
                 </button>
-                <button id="btn-back-setup" class="mt-4 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 font-semibold py-2 px-4 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition">
+                <button id="btn-back-setup" class="mt-4 w-full block text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 font-semibold py-3 px-4 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-700 transition text-center mx-auto">
                     Back to Edit Details
                 </button>
             </div>
@@ -275,32 +319,32 @@
         </div>
 
         <!-- ==================== LOGIN VIEW (Perfectly Centered) ==================== -->
-        <div id="view-login" class="hidden p-8 md:p-16 flex flex-col items-center justify-center min-h-[500px]">
-            <div class="w-full max-w-sm mx-auto bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700">
-                <div class="text-center mb-8">
+        <div id="view-login" class="hidden p-8 md:p-16 flex flex-col items-center justify-center min-h-[500px] w-full">
+            <div class="w-full max-w-sm mx-auto bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col items-center justify-center">
+                <div class="text-center mb-8 flex flex-col items-center justify-center w-full">
                     <div class="w-16 h-16 bg-tdmh-light dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4 text-tdmh-blue dark:text-blue-400">
                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                     </div>
-                    <h2 class="text-2xl font-black text-gray-900 dark:text-white">Staff Portal</h2>
-                    <p class="text-sm text-gray-500 mt-2 font-medium">Authorized personnel only.</p>
+                    <h2 id="login-title" class="text-2xl font-black text-gray-900 dark:text-white text-center w-full block">Staff Portal</h2>
+                    <p class="text-sm text-gray-500 mt-2 font-medium text-center w-full block">Authorized personnel only.</p>
                 </div>
                 
-                <form id="login-form" class="space-y-5">
-                    <div>
-                        <label class="block text-sm font-bold mb-1.5 text-gray-700 dark:text-gray-300 text-center">Username</label>
+                <form id="login-form" class="space-y-5 w-full flex flex-col items-center">
+                    <div class="w-full">
+                        <label class="block text-sm font-bold mb-1.5 text-gray-700 dark:text-gray-300 text-center w-full">Username</label>
                         <input type="text" id="login-user" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-tdmh-accent outline-none text-center font-medium">
                     </div>
-                    <div>
-                        <label class="block text-sm font-bold mb-1.5 text-gray-700 dark:text-gray-300 text-center">Password</label>
+                    <div class="w-full">
+                        <label class="block text-sm font-bold mb-1.5 text-gray-700 dark:text-gray-300 text-center w-full">Password</label>
                         <input type="password" id="login-pass" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-tdmh-accent outline-none text-center font-medium tracking-widest">
                     </div>
-                    <div class="pt-2">
-                        <button type="submit" id="btn-login-submit" class="w-full bg-gray-900 dark:bg-white dark:text-gray-900 text-white p-4 rounded-xl font-bold shadow-lg transition-all hover:bg-gray-800 dark:hover:bg-gray-100 flex justify-center items-center active:scale-[0.98]">
+                    <div class="pt-2 w-full flex flex-col items-center">
+                        <button type="submit" id="btn-login-submit" class="w-full block bg-gray-900 dark:bg-white dark:text-gray-900 text-white p-4 rounded-xl font-bold shadow-lg transition-all hover:bg-gray-800 dark:hover:bg-gray-100 flex justify-center items-center active:scale-[0.98] text-center mx-auto">
                             Sign In Securely
                         </button>
                     </div>
                 </form>
-                <button id="btn-cancel-login" class="w-full text-center text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 mt-6 font-semibold py-2">Cancel / Return</button>
+                <button id="btn-cancel-login" class="w-full text-center text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 mt-6 font-semibold py-2 block mx-auto">Cancel / Return</button>
             </div>
         </div>
 
@@ -416,30 +460,37 @@
         const views = ['view-setup', 'view-qrcode', 'view-attendance', 'view-login', 'view-dashboard'].map(id => document.getElementById(id));
         const htmlEl = document.documentElement;
 
-        // --- SMOOTH THEME ENGINE ---
+        // --- SMOOTH THEME ENGINE & PS VITA PEEL ---
         function applyTheme(isDark) {
             isDark ? htmlEl.classList.add('dark') : htmlEl.classList.remove('dark');
             document.getElementById('sun-icon').classList.toggle('hidden', !isDark);
             document.getElementById('moon-icon').classList.toggle('hidden', isDark);
             
-            // Redraw signature if it exists so ink matches theme
             setTimeout(redrawSignature, 50); 
         }
         applyTheme(isDarkMode);
 
         document.getElementById('theme-toggle').addEventListener('click', () => {
             const overlay = document.getElementById('theme-overlay');
-            overlay.classList.add('active'); // Fade in
             
-            setTimeout(() => {
-                isDarkMode = !isDarkMode;
-                localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-                applyTheme(isDarkMode);
-                
-                setTimeout(() => {
-                    overlay.classList.remove('active'); // Fade out after theme swap
-                }, 150);
-            }, 300); 
+            // 1. Snapshot the CURRENT screen color
+            const currentBg = getComputedStyle(document.body).backgroundColor;
+            overlay.style.backgroundColor = currentBg;
+            
+            // 2. Instantly show the overlay (frozen screen)
+            overlay.classList.remove('peel-out');
+            overlay.style.opacity = '1';
+            
+            // 3. Force browser to paint the overlay
+            void overlay.offsetWidth; 
+            
+            // 4. Secretly swap the actual theme in the background
+            isDarkMode = !isDarkMode;
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+            applyTheme(isDarkMode);
+            
+            // 5. Trigger the peel animation, pulling the frozen screen away to reveal the new one
+            overlay.classList.add('peel-out');
         });
 
         // --- NOTIFICATIONS ---
@@ -685,15 +736,30 @@
 
 
         // --- LOGIN & DASHBOARD (ROLE BASED) ---
-        const btnLoginNav = document.getElementById('nav-login-btn');
+        const btnNavAdmin = document.getElementById('btn-nav-admin');
+        const btnNavDept = document.getElementById('btn-nav-dept');
+        const loginGroup = document.getElementById('nav-login-group');
         const btnLogoutNav = document.getElementById('nav-logout-btn');
+        const loginTitle = document.getElementById('login-title');
 
-        btnLoginNav.addEventListener('click', () => switchView('view-login'));
+        btnNavAdmin.addEventListener('click', () => {
+            loginTitle.innerText = "Admin Portal";
+            switchView('view-login');
+        });
+
+        btnNavDept.addEventListener('click', () => {
+            loginTitle.innerText = "Dept Head Portal";
+            switchView('view-login');
+        });
+
         document.getElementById('btn-cancel-login').addEventListener('click', () => switchView('view-setup'));
         
         btnLogoutNav.addEventListener('click', () => {
-            userRole = null; btnLogoutNav.classList.add('hidden'); btnLoginNav.classList.remove('hidden');
-            switchView('view-setup'); showNotification("Securely logged out.", "info");
+            userRole = null; 
+            btnLogoutNav.classList.add('hidden'); 
+            loginGroup.classList.remove('hidden');
+            switchView('view-setup'); 
+            showNotification("Securely logged out.", "info");
         });
 
         document.getElementById('login-form').addEventListener('submit', async (e) => {
@@ -712,7 +778,8 @@
                     document.getElementById('login-form').reset();
                     showNotification(`Welcome, ${userRole}!`, "success");
                     
-                    btnLoginNav.classList.add('hidden'); btnLogoutNav.classList.remove('hidden');
+                    loginGroup.classList.add('hidden'); 
+                    btnLogoutNav.classList.remove('hidden');
                     setupDashboardForRole();
                     switchView('view-dashboard');
                 } else {
