@@ -147,11 +147,11 @@
 
     <div class="w-full max-w-5xl bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-slate-700 relative mx-auto mx-4 md:mx-auto">
         
-        <!-- Header Section -->
+        <!-- Header Section (Perfectly Centered) -->
         <div class="p-8 md:py-10 border-b border-gray-100 dark:border-slate-700 flex flex-col items-center justify-center text-center bg-gradient-to-b from-tdmh-light/30 to-transparent dark:from-slate-800/80 dark:to-transparent">
             
             <div class="mb-5 transition-all duration-300 dark:bg-white/95 dark:py-3 dark:px-5 dark:rounded-2xl dark:shadow-[0_0_30px_rgba(255,255,255,0.05)] inline-flex items-center justify-center">
-                <!-- Goldilocks size: Between the 'too big' and 'too small' versions -->
+                <!-- Goldilocks size -->
                 <img src="images%20logo/tdmh-logo.png" alt="TDMH Logo" class="h-16 md:h-20 w-auto object-contain" onerror="this.src='https://placehold.co/400x120/1e3a8a/ffffff?text=TDMH+Logo'">
             </div>
             
@@ -287,10 +287,15 @@
                         </label>
                     </div>
 
-                    <button type="submit" id="submit-btn" class="w-full bg-tdmh-blue hover:bg-blue-800 text-white p-4 md:p-5 rounded-xl font-bold text-lg mt-6 shadow-xl shadow-blue-900/20 transition-all flex justify-center items-center gap-2 active:scale-[0.98]">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                        Submit Secure Attendance
-                    </button>
+                    <div class="mt-6 flex flex-col gap-3">
+                        <button type="submit" id="submit-btn" class="w-full bg-tdmh-blue hover:bg-blue-800 text-white p-4 md:p-5 rounded-xl font-bold text-lg shadow-xl shadow-blue-900/20 transition-all flex justify-center items-center gap-2 active:scale-[0.98]">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                            Submit Secure Attendance
+                        </button>
+                        <button type="button" id="btn-back-to-qr" class="w-full block text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 font-semibold py-3 px-4 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-800 transition text-center">
+                            Cancel / Return to QR Page
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -443,7 +448,7 @@
             document.getElementById('sun-icon').classList.toggle('hidden', !isDark);
             document.getElementById('moon-icon').classList.toggle('hidden', isDark);
             
-            setTimeout(redrawSignature, 50); 
+            setTimeout(resizeCanvas, 50); 
         }
         applyTheme(isDarkMode);
 
@@ -507,7 +512,8 @@
                 }
             } catch(e) { 
                 console.error("Dropdown fetch error", e);
-                showNotification("Error loading data. Check connection.", "error");
+                // Notification silenced here so it doesn't bother users on mobile, 
+                // but keeps dropdown empty gracefully if offline.
             }
 
             const savedProfile = JSON.parse(localStorage.getItem('tdmh_profile'));
@@ -575,15 +581,21 @@
 
         document.getElementById('btn-proceed-signin').addEventListener('click', () => switchView('view-attendance'));
         document.getElementById('btn-back-setup').addEventListener('click', () => switchView('view-setup'));
+        document.getElementById('btn-back-to-qr').addEventListener('click', () => switchView('view-qrcode')); // NEW CANCEL BUTTON
 
         // --- SIGNATURE PAD (Fixed Disappearing Bug) ---
         const canvas = document.getElementById('signature-pad');
         const ctx = canvas.getContext('2d');
         let isDrawing = false, hasSigned = false;
         let savedSigData = null; // Memory state for resizing
+        let currentCanvasWidth = 0; // Tracks actual width to prevent false-resizes
 
         function resizeCanvas() {
             if(document.getElementById('view-attendance').classList.contains('hidden')) return;
+            
+            const newWidth = canvas.offsetWidth;
+            // ONLY resize if the screen physically changed width (prevents keyboard bugs on mobile)
+            if (currentCanvasWidth === newWidth && canvas.width !== 0) return; 
             
             // Save current drawing if it exists BEFORE resizing clears it
             if(hasSigned) savedSigData = canvas.toDataURL();
@@ -592,6 +604,8 @@
             canvas.width = canvas.offsetWidth * ratio;
             canvas.height = canvas.offsetHeight * ratio;
             ctx.scale(ratio, ratio);
+            
+            currentCanvasWidth = newWidth;
             
             // Restore drawing
             redrawSignature();
