@@ -813,7 +813,21 @@
                 
                 if(result.success && result.data.length > 1) {
                     const rows = result.data.slice(1);
-                    cachedData = rows.map(r => ({ date: r[0], time: r[1], subject: r[2], venue: r[3], moderator: r[4], name: r[5], dept: r[6], email: r[7], sig: r[8] })).reverse();
+                    cachedData = rows.map(r => {
+                        let dDate = r[0];
+                        let dTime = r[1];
+                        
+                        if (typeof dDate === 'string' && dDate.includes('T')) {
+                            const parsedDate = new Date(dDate);
+                            if (!isNaN(parsedDate)) dDate = parsedDate.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+                        }
+                        if (typeof dTime === 'string' && dTime.includes('T')) {
+                            const parsedTime = new Date(dTime);
+                            if (!isNaN(parsedTime)) dTime = parsedTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                        }
+
+                        return { date: dDate, time: dTime, subject: r[2], venue: r[3], moderator: r[4], name: r[5], dept: r[6], email: r[7], sig: r[8] };
+                    }).reverse();
                     renderTable();
                 } else {
                     tbody.innerHTML = `<tr><td colspan="5" class="p-12 text-center text-gray-500 font-semibold">No records found.</td></tr>`;
