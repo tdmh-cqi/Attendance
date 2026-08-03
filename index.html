@@ -147,14 +147,15 @@
 
     <div class="w-full max-w-5xl bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-slate-700 relative mx-auto mx-4 md:mx-auto">
         
-        <!-- Header Section (Centered & Refined) -->
-        <div class="p-8 md:py-10 border-b border-gray-100 dark:border-slate-700 flex flex-col items-center justify-center text-center bg-gradient-to-b from-tdmh-light/30 to-transparent dark:from-slate-800/80 dark:to-transparent w-full">
+        <!-- Header Section -->
+        <div class="p-8 md:py-10 border-b border-gray-100 dark:border-slate-700 flex flex-col items-center justify-center text-center bg-gradient-to-b from-tdmh-light/30 to-transparent dark:from-slate-800/80 dark:to-transparent">
             
-            <div class="mb-4 transition-all duration-300 dark:bg-white/95 dark:py-2 dark:px-4 dark:rounded-2xl dark:shadow-[0_0_30px_rgba(255,255,255,0.05)] inline-flex items-center justify-center">
-                <img src="images%20logo/tdmh-logo.png" alt="TDMH Logo" class="h-12 md:h-16 w-auto object-contain" onerror="this.src='https://placehold.co/400x120/1e3a8a/ffffff?text=TDMH+Logo'">
+            <div class="mb-5 transition-all duration-300 dark:bg-white/95 dark:py-3 dark:px-5 dark:rounded-2xl dark:shadow-[0_0_30px_rgba(255,255,255,0.05)] inline-flex items-center justify-center">
+                <!-- Goldilocks size: Between the 'too big' and 'too small' versions -->
+                <img src="images%20logo/tdmh-logo.png" alt="TDMH Logo" class="h-16 md:h-20 w-auto object-contain" onerror="this.src='https://placehold.co/400x120/1e3a8a/ffffff?text=TDMH+Logo'">
             </div>
             
-            <h1 class="text-xl md:text-2xl font-semibold tracking-wider text-tdmh-blue dark:text-blue-300 uppercase">Attendance</h1>
+            <h1 class="text-2xl md:text-3xl font-semibold tracking-wide text-tdmh-blue dark:text-blue-300 uppercase">Attendance</h1>
         </div>
 
         <!-- ==================== PUBLIC SETUP VIEW ==================== -->
@@ -163,57 +164,33 @@
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Meeting Configuration</h2>
                 <p class="text-sm md:text-base text-gray-500 dark:text-gray-400 mt-2 text-center w-full block">Select a saved template or enter the details manually below.</p>
             </div>
-            <button id="nav-logout-btn" class="px-5 py-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 text-red-600 dark:text-red-400 rounded-full shadow-sm hover:shadow-md transition-all text-sm font-semibold tracking-wide hidden">
-                Logout
-            </button>
-        </div>
-    </div>
-
-    <div class="w-full max-w-5xl bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-slate-700 relative mx-auto mx-4 md:mx-auto">
-        
-        <!-- Header Section (Perfectly Centered & Dialed Down) -->
-        <div class="p-8 md:py-10 border-b border-gray-100 dark:border-slate-700 flex flex-col items-center justify-center text-center bg-gradient-to-b from-tdmh-light/30 to-transparent dark:from-slate-800/80 dark:to-transparent">
             
-            <div class="mb-5 transition-all duration-300 dark:bg-white/95 dark:py-3 dark:px-5 dark:rounded-2xl dark:shadow-[0_0_30px_rgba(255,255,255,0.05)] inline-block flex items-center justify-center">
-                <img src="images%20logo/tdmh-logo.png" alt="TDMH Logo" class="h-16 md:h-24 w-auto object-contain" onerror="this.src='https://placehold.co/400x120/1e3a8a/ffffff?text=TDMH+Logo'">
-            </div>
-            
-            <h1 class="text-2xl md:text-3xl font-bold tracking-wide text-tdmh-blue dark:text-blue-300">ATTENDANCE PORTAL</h1>
-        </div>
-
-        <!-- ==================== PUBLIC SETUP VIEW ==================== -->
-        <div id="view-setup" class="p-8 md:p-12 transition-opacity">
-            <div class="text-center mb-10 max-w-lg mx-auto">
-                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Meeting Configuration</h2>
-                <p class="text-sm md:text-base text-gray-500 dark:text-gray-400 mt-2">Select a saved template or enter the details manually below.</p>
-            </div>
-            
-            <form id="setup-form" class="space-y-6 max-w-3xl mx-auto">
+            <form id="setup-form" class="space-y-6 max-w-3xl mx-auto w-full">
                 <div class="bg-blue-50/50 dark:bg-slate-700/30 p-6 rounded-2xl border border-blue-100 dark:border-slate-600 mb-8">
-                    <label class="block text-sm font-bold text-tdmh-blue dark:text-blue-300 mb-2 uppercase tracking-wide">Load from Template</label>
-                    <select id="setup-template" class="w-full p-3.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-tdmh-accent outline-none text-base transition-shadow font-medium shadow-sm">
+                    <label class="block text-sm font-bold text-tdmh-blue dark:text-blue-300 mb-2 uppercase tracking-wide text-center md:text-left">Load from Template (Optional)</label>
+                    <select id="setup-template" class="w-full p-3.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-tdmh-accent outline-none text-base transition-shadow font-medium shadow-sm text-center md:text-left">
                         <option value="">-- Custom Meeting --</option>
                         <option value="" disabled>Loading templates...</option>
                     </select>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
+                    <div class="flex flex-col items-center md:items-start w-full">
                         <label class="block text-sm font-semibold mb-1.5 text-gray-700 dark:text-gray-300">Subject / Title <span class="text-red-500">*</span></label>
-                        <input type="text" id="setup-subject" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-tdmh-accent outline-none transition-shadow text-base">
+                        <input type="text" id="setup-subject" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-tdmh-accent outline-none transition-shadow text-base text-center md:text-left">
                     </div>
-                    <div>
+                    <div class="flex flex-col items-center md:items-start w-full">
                         <label class="block text-sm font-semibold mb-1.5 text-gray-700 dark:text-gray-300">Venue <span class="text-red-500">*</span></label>
-                        <input type="text" id="setup-venue" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-tdmh-accent outline-none transition-shadow text-base">
+                        <input type="text" id="setup-venue" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-tdmh-accent outline-none transition-shadow text-base text-center md:text-left">
                     </div>
-                    <div class="md:col-span-2">
+                    <div class="md:col-span-2 flex flex-col items-center md:items-start w-full">
                         <label class="block text-sm font-semibold mb-1.5 text-gray-700 dark:text-gray-300">Moderator <span class="text-red-500">*</span></label>
                         <input type="text" id="setup-moderator" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-tdmh-accent outline-none transition-shadow text-base text-center md:text-left">
                     </div>
                 </div>
                 
-                <div class="pt-4">
-                    <button type="submit" class="w-full md:w-auto md:px-12 md:mx-auto block bg-tdmh-blue hover:bg-blue-800 text-white p-4 rounded-xl font-bold text-lg shadow-lg shadow-blue-900/20 transition-all active:scale-[0.98]">
+                <div class="pt-6 w-full flex justify-center">
+                    <button type="submit" class="w-full md:w-auto md:px-12 block bg-tdmh-blue hover:bg-blue-800 text-white p-4 rounded-xl font-bold text-lg shadow-lg shadow-blue-900/20 transition-all active:scale-[0.98] text-center mx-auto">
                         Generate QR & Start Attendance
                     </button>
                 </div>
