@@ -4,11 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meeting Attendance System - TDMH</title>
-    <!-- Tailwind CSS for premium styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- QRCode.js for generating join links -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -22,7 +20,7 @@
                         }
                     },
                     fontFamily: {
-                        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
                     }
                 }
             }
@@ -50,7 +48,7 @@
             transition: border-color 0.3s;
         }
         .dark #signature-pad {
-            background-color: #f1f5f9; /* Keeps ink contrast high */
+            background-color: #f1f5f9; 
             border-color: #475569;
         }
         #signature-pad:focus-within, #signature-pad:hover {
@@ -64,36 +62,38 @@
             -webkit-user-drag: none;
         }
 
-        /* TRUE PS VITA PEEL EFFECT */
+        /* TRUE SMOOTH CURTAIN SWEEP */
         .theme-overlay {
             position: fixed;
-            top: -10vh; right: -10vw; bottom: -10vh; left: -10vw; /* Bleed edges */
+            top: 0; bottom: 0; left: 0; width: 100vw;
             z-index: 9999;
             pointer-events: none;
-            opacity: 0;
-            box-shadow: -30px 30px 80px rgba(0,0,0,0.6); /* Deep shadow for 3D depth */
+            transform: translateX(-100%);
+            will-change: transform;
+            box-shadow: 0 0 100px rgba(0,0,0,0.4); 
         }
         
-        .peel-out {
-            opacity: 1;
-            pointer-events: all;
-            animation: psVitaPeel 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        .sweep-active {
+            animation: themeSweep 1.5s forwards;
         }
 
-        @keyframes psVitaPeel {
-            0% { 
-                transform: translate(0, 0) rotate(0deg); 
-                border-top-right-radius: 0;
-                border-bottom-left-radius: 0;
-            }
-            100% { 
-                /* Drag down and left diagonally */
-                transform: translate(-120vw, 120vh) rotate(-15deg); 
-                /* Top right corner curls massively, bottom left rounds out */
-                border-top-right-radius: 100vw;
-                border-bottom-left-radius: 20vw;
-                opacity: 0.8; 
-            }
+        @keyframes themeSweep {
+            0% { transform: translateX(-100%); animation-timing-function: cubic-bezier(0.7, 0, 0.2, 1); } 
+            35% { transform: translateX(0%); animation-timing-function: linear; } 
+            65% { transform: translateX(0%); animation-timing-function: cubic-bezier(0.8, 0, 0.3, 1); } 
+            100% { transform: translateX(100%); }
+        }
+
+        /* Cinematic zoom and focus on the TDMH letters */
+        .sweep-active #theme-overlay-text-bg {
+            animation: textPop 1.5s forwards;
+        }
+
+        @keyframes textPop {
+            0% { transform: scale(0.8); opacity: 0; filter: blur(4px); }
+            35% { transform: scale(1.05); opacity: 1; filter: blur(0px); }
+            65% { transform: scale(1.15); opacity: 1; filter: blur(0px); }
+            100% { transform: scale(0.9); opacity: 0; filter: blur(4px); }
         }
 
         /* Notifications & Spinners */
@@ -102,26 +102,40 @@
         .toast-enter { animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .toast-exit { animation: fadeOut 0.4s ease-in forwards; }
 
-        .loader {
-            border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid #fff;
-            border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite;
-        }
+        .loader { border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid #fff; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
         .loader-blue { border-color: rgba(37,99,235,0.2); border-top-color: #2563eb; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Print Styles for Official Records */
+        @media print {
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area { position: absolute; left: 0; top: 0; width: 100%; }
+            .no-print { display: none !important; }
+            .print-border { border: 1px solid #000; padding: 4px; }
+        }
     </style>
 </head>
 <body class="text-gray-800 dark:text-gray-200 min-h-screen flex flex-col items-center pb-16">
 
-    <!-- Control Number fixed to bottom right -->
-    <div class="fixed bottom-2 right-4 text-[10px] md:text-xs font-bold text-gray-400 dark:text-gray-600 z-50 pointer-events-none tracking-widest">
+    <div class="fixed bottom-2 right-4 text-[10px] md:text-xs font-bold text-gray-400 dark:text-gray-600 z-50 pointer-events-none tracking-widest no-print">
         TDMH-CQI-F-001-1-0
     </div>
 
-    <!-- Smooth Theme Transition Overlay -->
-    <div id="theme-overlay" class="theme-overlay"></div>
+    <!-- Smooth Theme Transition Overlay with Branded Text -->
+    <div id="theme-overlay" class="theme-overlay no-print flex items-center justify-center">
+        <div id="theme-overlay-text-bg" class="px-8 py-5 rounded-[2rem] transition-all duration-300 flex items-center justify-center">
+            <span class="text-5xl md:text-7xl font-black tracking-widest flex gap-2 md:gap-3 drop-shadow-sm">
+                <span class="text-[#059669]">T</span>
+                <span class="text-[#1e3a8a]">D</span>
+                <span class="text-[#d97706]">M</span>
+                <span class="text-[#dc2626]">H</span>
+            </span>
+        </div>
+    </div>
 
     <!-- Top Nav Controls -->
-    <div class="w-full max-w-5xl flex justify-between items-center p-4 md:pt-6 md:pb-4 mx-auto">
+    <div class="w-full max-w-5xl flex justify-between items-center p-4 md:pt-6 md:pb-4 mx-auto no-print">
         <div class="flex flex-col">
             <div id="live-time" class="text-xl md:text-2xl font-black text-tdmh-blue dark:text-blue-300 tabular-nums leading-none">--:--</div>
             <div id="live-date" class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">--/--/----</div>
@@ -131,6 +145,11 @@
                 <svg id="moon-icon" class="w-4 h-4 md:w-5 md:h-5 hidden dark:block" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
                 <svg id="sun-icon" class="w-4 h-4 md:w-5 md:h-5 block dark:hidden" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path></svg>
             </button>
+            
+            <button id="btn-resume-meeting" class="hidden px-3 md:px-5 py-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 text-red-600 dark:text-red-400 rounded-lg shadow-sm hover:shadow-md transition-all text-xs md:text-sm font-bold tracking-wide animate-pulse flex items-center gap-1.5 md:gap-2">
+                <span class="w-2 h-2 rounded-full bg-red-600 dark:bg-red-400"></span> <span class="hidden md:inline">Active</span> Meeting
+            </button>
+
             <div id="nav-login-group" class="flex gap-2">
                 <button id="btn-nav-dept" class="px-3 md:px-5 py-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-tdmh-blue dark:text-blue-400 rounded-lg shadow-sm hover:shadow-md transition-all text-xs md:text-sm font-bold tracking-wide">
                     Dept Login
@@ -139,22 +158,25 @@
                     Admin Login
                 </button>
             </div>
-            <button id="nav-logout-btn" class="px-5 py-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 text-red-600 dark:text-red-400 rounded-lg shadow-sm hover:shadow-md transition-all text-sm font-bold tracking-wide hidden">
-                Logout
-            </button>
+            <div id="nav-logged-in-group" class="flex gap-2 hidden">
+                <button id="nav-dashboard-btn" class="px-3 md:px-5 py-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-tdmh-blue dark:text-blue-400 rounded-lg shadow-sm hover:shadow-md transition-all text-xs md:text-sm font-bold tracking-wide">
+                    Dashboard
+                </button>
+                <button id="nav-logout-btn" class="px-3 md:px-5 py-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 text-red-600 dark:text-red-400 rounded-lg shadow-sm hover:shadow-md transition-all text-xs md:text-sm font-bold tracking-wide">
+                    Logout
+                </button>
+            </div>
         </div>
     </div>
 
-    <div class="w-full max-w-5xl bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-slate-700 relative mx-auto mx-4 md:mx-auto">
+    <!-- Main Container -->
+    <div class="w-full max-w-5xl bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-slate-700 relative mx-auto mx-4 md:mx-auto" id="app-container">
         
-        <!-- Header Section (Perfectly Centered) -->
-        <div class="p-8 md:py-10 border-b border-gray-100 dark:border-slate-700 flex flex-col items-center justify-center text-center bg-gradient-to-b from-tdmh-light/30 to-transparent dark:from-slate-800/80 dark:to-transparent">
-            
+        <!-- Header Section -->
+        <div class="p-8 md:py-10 border-b border-gray-100 dark:border-slate-700 flex flex-col items-center justify-center text-center bg-gradient-to-b from-tdmh-light/30 to-transparent dark:from-slate-800/80 dark:to-transparent no-print">
             <div class="mb-5 transition-all duration-300 dark:bg-white/95 dark:py-3 dark:px-5 dark:rounded-2xl dark:shadow-[0_0_30px_rgba(255,255,255,0.05)] inline-flex items-center justify-center">
-                <!-- Goldilocks size -->
-                <img src="images%20logo/tdmh-logo.png" alt="TDMH Logo" class="h-16 md:h-20 w-auto object-contain" onerror="this.src='https://placehold.co/400x120/1e3a8a/ffffff?text=TDMH+Logo'">
+                <img src="images%20logo/tdmh-logo.png" alt="TDMH Logo" class="h-16 w-auto object-contain" onerror="this.src='https://placehold.co/400x120/1e3a8a/ffffff?text=TDMH+Logo'">
             </div>
-            
             <h1 class="text-2xl md:text-3xl font-semibold tracking-wide text-tdmh-blue dark:text-blue-300 uppercase">Attendance</h1>
         </div>
 
@@ -162,137 +184,162 @@
         <div id="view-setup" class="p-8 md:p-12 transition-opacity">
             <div class="text-center mb-10 max-w-lg mx-auto flex flex-col items-center justify-center w-full">
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Meeting Configuration</h2>
-                <p class="text-sm md:text-base text-gray-500 dark:text-gray-400 mt-2 text-center w-full block">Select a saved template or enter the details manually below.</p>
+                <p class="text-sm md:text-base text-gray-500 dark:text-gray-400 mt-2">Set up a new attendance session.</p>
             </div>
             
-            <form id="setup-form" class="space-y-6 max-w-3xl mx-auto w-full">
+            <form id="setup-form" class="space-y-6 max-w-3xl mx-auto">
                 <div class="bg-blue-50/50 dark:bg-slate-700/30 p-6 rounded-2xl border border-blue-100 dark:border-slate-600 mb-8">
-                    <label class="block text-sm font-bold text-tdmh-blue dark:text-blue-300 mb-2 uppercase tracking-wide text-center md:text-left">Load from Template (Optional)</label>
-                    <select id="setup-template" class="w-full p-3.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-tdmh-accent outline-none text-base transition-shadow font-medium shadow-sm text-center md:text-left">
+                    <label class="block text-sm font-bold text-tdmh-blue dark:text-blue-300 mb-2 uppercase tracking-wide">Load from Template (Optional)</label>
+                    <select id="setup-template" class="w-full p-3.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl outline-none text-base shadow-sm">
                         <option value="">-- Custom Meeting --</option>
                         <option value="" disabled>Loading templates...</option>
                     </select>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="flex flex-col items-center md:items-start w-full">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold mb-1.5 text-gray-700 dark:text-gray-300">Hosting Department / Entity <span class="text-red-500">*</span></label>
+                        <select id="setup-host" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl outline-none text-base font-bold text-tdmh-blue dark:text-blue-300">
+                            <option value="" disabled selected>Select Host...</option>
+                            <option value="Loading">Loading hosts...</option>
+                        </select>
+                    </div>
+                    
+                    <div id="custom-host-container" class="hidden md:col-span-2 p-4 bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800/30 rounded-xl">
+                        <label class="block text-xs font-bold text-orange-800 dark:text-orange-400 uppercase tracking-widest mb-1.5">Specify Guest / External Host</label>
+                        <input type="text" id="setup-custom-host" placeholder="e.g., DOH Auditors, ISO Inspector" class="w-full p-3 bg-white dark:bg-slate-800 border border-orange-200 dark:border-orange-800/50 rounded-lg outline-none text-sm">
+                    </div>
+
+                    <div>
                         <label class="block text-sm font-semibold mb-1.5 text-gray-700 dark:text-gray-300">Subject / Title <span class="text-red-500">*</span></label>
-                        <input type="text" id="setup-subject" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-tdmh-accent outline-none transition-shadow text-base text-center md:text-left">
+                        <input type="text" id="setup-subject" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl outline-none text-base">
                     </div>
-                    <div class="flex flex-col items-center md:items-start w-full">
+                    <div>
                         <label class="block text-sm font-semibold mb-1.5 text-gray-700 dark:text-gray-300">Venue <span class="text-red-500">*</span></label>
-                        <input type="text" id="setup-venue" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-tdmh-accent outline-none transition-shadow text-base text-center md:text-left">
+                        <input type="text" id="setup-venue" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl outline-none text-base">
                     </div>
-                    <div class="md:col-span-2 flex flex-col items-center md:items-start w-full">
+                    <div class="md:col-span-2">
                         <label class="block text-sm font-semibold mb-1.5 text-gray-700 dark:text-gray-300">Moderator <span class="text-red-500">*</span></label>
-                        <input type="text" id="setup-moderator" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-tdmh-accent outline-none transition-shadow text-base text-center md:text-left">
+                        <input type="text" id="setup-moderator" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl outline-none text-base">
                     </div>
                 </div>
                 
                 <div class="pt-6 w-full flex justify-center">
-                    <button type="submit" class="w-full md:w-auto md:px-12 block bg-tdmh-blue hover:bg-blue-800 text-white p-4 rounded-xl font-bold text-lg shadow-lg shadow-blue-900/20 transition-all active:scale-[0.98] text-center mx-auto">
+                    <button type="submit" class="w-full md:w-auto md:px-12 bg-tdmh-blue hover:bg-blue-800 text-white p-4 rounded-xl font-bold text-lg shadow-lg shadow-blue-900/20 transition-all active:scale-[0.98]">
                         Generate QR & Start Attendance
                     </button>
                 </div>
             </form>
         </div>
 
-        <!-- ==================== QR CODE DISPLAY VIEW ==================== -->
-        <div id="view-qrcode" class="hidden p-8 md:p-16 flex flex-col items-center justify-center text-center w-full mx-auto">
-            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-3 text-center w-full block">Meeting Ready!</h2>
-            <p class="text-gray-500 dark:text-gray-400 mb-10 max-w-md text-base text-center mx-auto block w-full">Attendees can scan this QR code to join from their personal devices, or you can proceed to the shared sign-in screen below.</p>
-            
-            <div class="bg-white p-6 rounded-3xl shadow-xl border border-gray-100 inline-block mb-10 transition-transform hover:scale-105 mx-auto flex justify-center items-center">
-                <div id="qr-container"></div>
-            </div>
-            
-            <div class="w-full max-w-sm flex flex-col items-center justify-center mx-auto mt-2">
-                <button id="btn-proceed-signin" class="w-full block bg-green-600 hover:bg-green-700 text-white p-4 rounded-xl font-bold text-lg shadow-lg shadow-green-900/20 transition-all active:scale-[0.98] text-center">
-                    Open Shared Sign-in Form
-                </button>
-                <button id="btn-back-setup" class="mt-4 w-full block text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 font-semibold py-3 px-4 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-700 transition text-center mx-auto">
-                    Back to Edit Details
-                </button>
+        <!-- ==================== QR CODE "MODERATOR HUB" VIEW ==================== -->
+        <div id="view-qrcode" class="hidden">
+            <div class="flex flex-col md:flex-row min-h-[600px]">
+                <!-- Left: QR Code -->
+                <div class="p-8 md:p-12 md:w-1/2 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-800">
+                    <h2 class="text-2xl font-black text-tdmh-blue dark:text-blue-300 mb-2 uppercase tracking-wide">Scan to Join</h2>
+                    <p class="text-gray-500 dark:text-gray-400 mb-8 text-sm text-center max-w-xs">Use your phone's camera to sign in securely.</p>
+                    
+                    <div class="bg-white p-6 rounded-3xl shadow-xl border border-gray-100 inline-block mb-8">
+                        <div id="qr-container"></div>
+                    </div>
+                    
+                    <div class="w-full max-w-sm flex flex-col gap-3">
+                        <button id="btn-proceed-signin" class="w-full bg-green-600 hover:bg-green-700 text-white p-3 rounded-xl font-bold text-sm shadow-lg shadow-green-900/20 transition-all active:scale-[0.98]">
+                            Open Shared Form Here
+                        </button>
+                        <div class="flex gap-3">
+                            <button id="btn-edit-meeting" class="w-1/2 text-sm text-gray-600 dark:text-gray-300 font-semibold py-2.5 rounded-xl bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 transition">
+                                Edit Details
+                            </button>
+                            <button id="btn-end-meeting" class="w-1/2 text-sm text-red-600 dark:text-red-400 font-semibold py-2.5 rounded-xl bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 transition">
+                                End Meeting
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right: Live Feed -->
+                <div class="p-8 md:p-10 md:w-1/2 bg-gray-50 dark:bg-slate-900 flex flex-col h-[600px]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Live Feed
+                        </h3>
+                        <div class="bg-tdmh-blue text-white px-4 py-2 rounded-lg shadow-sm">
+                            <span class="text-xs font-semibold uppercase tracking-widest opacity-80">Headcount</span>
+                            <div class="text-2xl font-black leading-none" id="live-headcount">0</div>
+                        </div>
+                    </div>
+                    
+                    <div id="live-feed-list" class="flex-1 overflow-y-auto pr-2 space-y-3">
+                        <div class="text-center text-gray-400 dark:text-gray-500 italic text-sm mt-10">Waiting for attendees to sign in...</div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- ==================== PUBLIC ATTENDANCE VIEW ==================== -->
         <div id="view-attendance" class="hidden">
-            <!-- Centered Meeting Info Banner -->
             <div class="bg-slate-50 dark:bg-slate-800/80 p-6 border-b border-gray-200 dark:border-slate-700">
                 <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-                    <div>
-                        <span class="text-gray-400 dark:text-gray-500 text-[10px] font-bold uppercase tracking-widest block mb-1">Subject</span> 
-                        <span id="display-subject" class="font-bold text-tdmh-blue dark:text-blue-300 text-base md:text-lg"></span>
-                    </div>
-                    <div>
-                        <span class="text-gray-400 dark:text-gray-500 text-[10px] font-bold uppercase tracking-widest block mb-1">Venue</span> 
-                        <span id="display-venue" class="font-bold text-gray-800 dark:text-gray-200 text-base md:text-lg"></span>
-                    </div>
-                    <div>
-                        <span class="text-gray-400 dark:text-gray-500 text-[10px] font-bold uppercase tracking-widest block mb-1">Moderator</span> 
-                        <span id="display-moderator" class="font-bold text-gray-800 dark:text-gray-200 text-base md:text-lg"></span>
-                    </div>
+                    <div><span class="text-gray-400 dark:text-gray-500 text-[10px] font-bold uppercase tracking-widest block mb-1">Subject</span> <span id="display-subject" class="font-bold text-tdmh-blue dark:text-blue-300 text-base"></span></div>
+                    <div><span class="text-gray-400 dark:text-gray-500 text-[10px] font-bold uppercase tracking-widest block mb-1">Venue</span> <span id="display-venue" class="font-bold text-gray-800 dark:text-gray-200 text-base"></span></div>
+                    <div><span class="text-gray-400 dark:text-gray-500 text-[10px] font-bold uppercase tracking-widest block mb-1">Moderator</span> <span id="display-moderator" class="font-bold text-gray-800 dark:text-gray-200 text-base"></span></div>
                 </div>
             </div>
 
             <div class="p-8 md:p-12 max-w-4xl mx-auto">
                 <h2 class="text-2xl md:text-3xl font-bold mb-8 text-gray-900 dark:text-white flex items-center justify-center md:justify-start gap-3">
-                    <span class="w-1.5 h-7 bg-tdmh-accent rounded-full inline-block hidden md:block"></span> Participant Sign-In
+                    <span class="w-1.5 h-7 bg-tdmh-accent rounded-full hidden md:block"></span> Participant Sign-In
                 </h2>
                 
                 <form id="attendance-form" class="space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-sm font-semibold mb-1.5 text-gray-700 dark:text-gray-300">Full Name <span class="text-red-500">*</span></label>
-                            <input type="text" id="participant-name" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-tdmh-accent outline-none transition-shadow text-base" placeholder="e.g. Juan Dela Cruz">
+                            <input type="text" id="participant-name" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl outline-none text-base" placeholder="e.g. Juan Dela Cruz">
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold mb-1.5 text-gray-700 dark:text-gray-300">Department <span class="text-red-500">*</span></label>
-                            <select id="participant-department" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-tdmh-accent outline-none transition-shadow text-base">
+                            <label class="block text-sm font-semibold mb-1.5 text-gray-700 dark:text-gray-300">Your Department <span class="text-red-500">*</span></label>
+                            <select id="participant-department" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl outline-none text-base">
                                 <option value="" disabled selected>Select Department...</option>
-                                <option value="Loading">Loading departments...</option>
                             </select>
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-semibold mb-1.5 text-gray-700 dark:text-gray-300">Email Address <span class="text-gray-400 font-normal ml-1 text-xs">(Optional)</span></label>
-                            <input type="email" id="participant-email" class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-tdmh-accent outline-none transition-shadow text-base" placeholder="juan@example.com">
+                            <input type="email" id="participant-email" class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl outline-none text-base">
                         </div>
                     </div>
 
-                    <!-- Remember Me Toggle -->
                     <div class="flex items-start gap-3 mt-2 bg-blue-50/50 dark:bg-blue-900/10 p-4 rounded-xl border border-blue-100 dark:border-blue-800/30">
-                        <input type="checkbox" id="remember-me" class="mt-1 w-4 h-4 text-tdmh-accent rounded focus:ring-tdmh-accent border-gray-300">
+                        <input type="checkbox" id="remember-me" class="mt-1 w-4 h-4 text-tdmh-accent rounded border-gray-300">
                         <div>
                             <label for="remember-me" class="text-sm font-bold text-tdmh-blue dark:text-blue-300 cursor-pointer select-none">Remember my details</label>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">Saves your name and department on this specific device. <strong class="text-red-500 dark:text-red-400 font-semibold">Do not check this if you are using a shared hospital tablet.</strong></p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">Saves your name and dept. <strong class="text-red-500">Do not check this if using a shared tablet.</strong></p>
                         </div>
                     </div>
 
-                    <!-- Signature Pad -->
                     <div class="mt-8">
                         <label class="block text-sm font-semibold mb-3 flex justify-between items-center text-gray-700 dark:text-gray-300">
                             <span>Digital Signature <span class="text-red-500">*</span></span>
-                            <button type="button" id="btn-clear-sig" class="text-xs bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 hover:bg-red-100 px-3 py-1.5 rounded-lg transition font-bold tracking-wide">Clear Canvas</button>
+                            <button type="button" id="btn-clear-sig" class="text-xs bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 px-3 py-1.5 rounded-lg font-bold">Clear Canvas</button>
                         </label>
                         <canvas id="signature-pad" class="shadow-inner"></canvas>
-                        <p class="text-[11px] text-gray-400 mt-2 text-center uppercase tracking-widest font-semibold">Please sign within the dotted box</p>
+                        <p class="text-[11px] text-gray-400 mt-2 text-center uppercase font-semibold">Please sign within the dotted box</p>
                     </div>
 
-                    <!-- DATA PRIVACY ACT CHECKBOX -->
                     <div class="flex items-start gap-3 mt-6 bg-gray-50 dark:bg-slate-900 p-5 rounded-xl border border-gray-200 dark:border-slate-700">
-                        <input type="checkbox" id="dpa-consent" required class="mt-1 w-5 h-5 text-tdmh-accent rounded focus:ring-tdmh-accent border-gray-300 cursor-pointer">
+                        <input type="checkbox" id="dpa-consent" required class="mt-1 w-5 h-5 text-tdmh-accent rounded border-gray-300 cursor-pointer">
                         <label for="dpa-consent" class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed cursor-pointer select-none">
-                            <strong class="text-gray-800 dark:text-gray-200">Data Privacy Consent:</strong> By checking this box and submitting my attendance, I hereby agree and consent that Taytay Doctors Multispecialty Hospital (TDMH) may collect, use, and process my personal information and signature for official documentation and compliance purposes in accordance with the Data Privacy Act of 2012 (RA 10173).
+                            <strong class="text-gray-800 dark:text-gray-200">Data Privacy Consent:</strong> By checking this box, I consent that TDMH may process my personal information in accordance with the Data Privacy Act of 2012 (RA 10173).
                         </label>
                     </div>
 
                     <div class="mt-6 flex flex-col gap-3">
-                        <button type="submit" id="submit-btn" class="w-full bg-tdmh-blue hover:bg-blue-800 text-white p-4 md:p-5 rounded-xl font-bold text-lg shadow-xl shadow-blue-900/20 transition-all flex justify-center items-center gap-2 active:scale-[0.98]">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        <button type="submit" id="submit-btn" class="w-full bg-tdmh-blue hover:bg-blue-800 text-white p-4 rounded-xl font-bold text-lg shadow-xl active:scale-[0.98]">
                             Submit Secure Attendance
                         </button>
-                        <button type="button" id="btn-back-to-qr" class="w-full block text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 font-semibold py-3 px-4 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-800 transition text-center">
+                        <button type="button" id="btn-back-to-qr" class="w-full text-sm text-gray-500 font-semibold py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-800 transition text-center">
                             Cancel / Return to QR Page
                         </button>
                     </div>
@@ -300,149 +347,186 @@
             </div>
         </div>
 
-        <!-- ==================== LOGIN VIEW (Perfectly Centered) ==================== -->
-        <div id="view-login" class="hidden p-8 md:p-16 flex flex-col items-center justify-center min-h-[500px] w-full">
-            <div class="w-full max-w-sm mx-auto bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col items-center justify-center">
-                <div class="text-center mb-8 flex flex-col items-center justify-center w-full">
-                    <div class="w-16 h-16 bg-tdmh-light dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4 text-tdmh-blue dark:text-blue-400">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                    </div>
-                    <h2 id="login-title" class="text-2xl font-black text-gray-900 dark:text-white text-center w-full block">Staff Portal</h2>
-                    <p class="text-sm text-gray-500 mt-2 font-medium text-center w-full block">Authorized personnel only.</p>
+        <!-- ==================== LOGIN VIEW ==================== -->
+        <div id="view-login" class="hidden p-8 md:p-16 flex flex-col items-center justify-center min-h-[500px]">
+            <div class="w-full max-w-sm mx-auto bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col items-center">
+                <div class="w-16 h-16 bg-tdmh-light dark:bg-slate-700 rounded-full flex items-center justify-center mb-4 text-tdmh-blue dark:text-blue-400">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                 </div>
+                <h2 id="login-title" class="text-2xl font-black text-gray-900 dark:text-white mb-1">Portal</h2>
+                <p class="text-sm text-gray-500 mb-8 font-medium">Authorized personnel only.</p>
                 
-                <form id="login-form" class="space-y-5 w-full flex flex-col items-center">
-                    <div class="w-full">
-                        <label class="block text-sm font-bold mb-1.5 text-gray-700 dark:text-gray-300 text-center w-full">Username</label>
-                        <input type="text" id="login-user" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-tdmh-accent outline-none text-center font-medium">
+                <form id="login-form" class="space-y-5 w-full">
+                    <div id="login-user-container" class="w-full">
+                        <label class="block text-sm font-bold mb-1.5 text-center w-full">Username</label>
+                        <input type="text" id="login-user" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl outline-none text-center">
                     </div>
-                    <div class="w-full">
-                        <label class="block text-sm font-bold mb-1.5 text-gray-700 dark:text-gray-300 text-center w-full">Password</label>
-                        <input type="password" id="login-pass" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-tdmh-accent outline-none text-center font-medium tracking-widest">
+                    
+                    <div id="login-dept-container" class="w-full hidden">
+                        <label class="block text-sm font-bold mb-1.5 text-center w-full">Department</label>
+                        <select id="login-dept" class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl outline-none text-center appearance-none">
+                            <option value="" disabled selected>Select your Department...</option>
+                        </select>
                     </div>
-                    <div class="pt-2 w-full flex flex-col items-center">
-                        <button type="submit" id="btn-login-submit" class="w-full block bg-gray-900 dark:bg-white dark:text-gray-900 text-white p-4 rounded-xl font-bold shadow-lg transition-all hover:bg-gray-800 dark:hover:bg-gray-100 flex justify-center items-center active:scale-[0.98] text-center mx-auto">
-                            Sign In Securely
-                        </button>
+
+                    <div>
+                        <label class="block text-sm font-bold mb-1.5 text-center w-full">Password</label>
+                        <input type="password" id="login-pass" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl outline-none text-center tracking-widest">
                     </div>
+                    <button type="submit" id="btn-login-submit" class="w-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 p-4 rounded-xl font-bold shadow-lg transition-all active:scale-[0.98]">
+                        Sign In Securely
+                    </button>
                 </form>
-                <button id="btn-cancel-login" class="w-full text-center text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 mt-6 font-semibold py-2 block mx-auto">Cancel / Return</button>
+                <button id="btn-cancel-login" class="text-sm text-gray-500 hover:text-gray-700 mt-6 font-semibold py-2">Cancel / Return</button>
             </div>
         </div>
 
-        <!-- ==================== DASHBOARD VIEW ==================== -->
-        <div id="view-dashboard" class="hidden">
-            <div class="p-6 md:p-10 bg-gray-50 dark:bg-slate-800/80 border-b border-gray-200 dark:border-slate-700 flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-4">
+        <!-- ==================== TIER 1 DASHBOARD (MEETING FOLDERS) ==================== -->
+        <div id="view-dashboard-tier1" class="hidden min-h-[500px]">
+            <div class="p-6 md:p-10 bg-gray-50 dark:bg-slate-800/80 border-b border-gray-200 dark:border-slate-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 class="text-2xl font-black text-gray-900 dark:text-white flex flex-col md:flex-row items-center gap-3">
-                        Dashboard
-                        <span id="role-badge" class="px-3 py-1 rounded-md text-xs font-bold uppercase tracking-widest bg-tdmh-blue text-white shadow-sm">Role</span>
+                    <h2 class="text-2xl font-black text-gray-900 dark:text-white flex items-center gap-3">
+                        Meeting Archives <span id="role-badge-1" class="px-3 py-1 rounded-md text-xs font-bold uppercase bg-tdmh-blue text-white shadow-sm">Role</span>
                     </h2>
-                    <p class="text-sm text-gray-500 mt-2 font-medium">Monitor live attendance data and verified signatures.</p>
+                    <p class="text-sm text-gray-500 mt-1">Select a meeting to view its specific attendees.</p>
                 </div>
-                <button id="btn-refresh-data" class="bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 text-tdmh-blue dark:text-blue-300 px-5 py-3 rounded-xl shadow-sm hover:shadow transition-all text-sm font-bold flex items-center gap-2 active:scale-[0.98]">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> Refresh Data
-                </button>
-            </div>
-            
-            <div class="p-6 md:p-10">
-                <!-- Filters -->
-                <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-200 dark:border-slate-700 mb-8 grid grid-cols-1 md:grid-cols-4 gap-5 shadow-sm">
-                    <div id="filter-dept-container">
-                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Department</label>
-                        <select id="filter-dept" class="w-full p-3 rounded-xl border border-gray-200 dark:border-slate-700 dark:bg-slate-800 outline-none text-sm font-semibold">
-                            <option value="">All Departments</option>
+                <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+                    <div id="admin-host-filter" class="hidden">
+                        <select id="filter-host-select" class="w-full md:w-auto p-3 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl outline-none text-sm font-bold shadow-sm">
+                            <option value="">All Hosted Meetings</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Date From</label>
-                        <input type="date" id="filter-date-from" class="w-full p-3 rounded-xl border border-gray-200 dark:border-slate-700 dark:bg-slate-800 outline-none text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Date To</label>
-                        <input type="date" id="filter-date-to" class="w-full p-3 rounded-xl border border-gray-200 dark:border-slate-700 dark:bg-slate-800 outline-none text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    </div>
-                    <div class="flex items-end">
-                        <button id="btn-apply-filters" class="w-full bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-tdmh-blue dark:text-white p-3 rounded-xl transition-all text-sm font-bold border border-gray-200 dark:border-slate-600">Apply Filters</button>
+                    <button id="btn-start-meeting" class="bg-tdmh-blue border border-transparent text-white px-5 py-3 rounded-xl shadow-sm hover:bg-blue-800 transition-all text-sm font-bold flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> New Meeting
+                    </button>
+                    <button onclick="fetchDashboardData()" class="bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 text-tdmh-blue dark:text-blue-300 px-5 py-3 rounded-xl shadow-sm text-sm font-bold flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-6 md:p-10 relative">
+                <div id="tier1-loader" class="absolute inset-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center hidden">
+                    <div class="loader loader-blue mb-4 !w-10 !h-10 !border-4"></div>
+                    <p class="text-tdmh-blue dark:text-blue-400 font-bold animate-pulse">Syncing Database...</p>
+                </div>
+
+                <!-- Admin Only: Live Operations Today -->
+                <div id="admin-active-meetings-section" class="hidden w-full mb-10 pb-10 border-b-2 border-dashed border-gray-200 dark:border-slate-700">
+                    <h3 class="text-sm font-black text-red-600 dark:text-red-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-red-600 dark:bg-red-500 animate-pulse"></span> Active Operations Today
+                    </h3>
+                    <div id="active-meetings-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                        <!-- Today's meetings inject here -->
                     </div>
                 </div>
 
-                <!-- Data Table -->
-                <div class="overflow-x-auto border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm">
-                    <table class="w-full text-left text-sm whitespace-nowrap">
-                        <thead class="bg-gray-50 dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 text-gray-500 dark:text-gray-400">
+                <!-- Historical Archives -->
+                <h3 id="archive-title-label" class="text-sm font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4 hidden">Historical Records</h3>
+                <div id="meeting-folders-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <!-- Folders inject here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TIER 2 DASHBOARD (SPECIFIC MEETING COMPILATION) ==================== -->
+        <div id="view-dashboard-tier2" class="hidden bg-white dark:bg-slate-900 print-area">
+            <!-- Non-printable nav -->
+            <div class="p-4 bg-gray-100 dark:bg-slate-800 flex justify-between items-center no-print">
+                <button onclick="switchView('view-dashboard-tier1')" class="text-sm font-bold text-gray-600 dark:text-gray-300 flex items-center gap-1 hover:text-tdmh-blue">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> Back to Folders
+                </button>
+                <button onclick="window.print()" class="bg-tdmh-blue text-white px-5 py-2 rounded-lg font-bold text-sm shadow-md hover:bg-blue-800 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg> Print Official Record
+                </button>
+            </div>
+
+            <!-- Printable Document Header -->
+            <div class="p-8 md:p-12 pb-4" id="print-area">
+                <div class="text-center border-b-2 border-gray-900 pb-6 mb-6">
+                    <h1 class="text-2xl font-black uppercase tracking-wider text-gray-900 dark:text-white">Official Attendance Record</h1>
+                    <p class="text-sm font-bold text-gray-600 dark:text-gray-400 uppercase mt-1">Taytay Doctors Multispecialty Hospital</p>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 text-sm mb-8 text-gray-800 dark:text-gray-200 font-medium print-border">
+                    <div><span class="font-bold uppercase text-gray-500 text-xs">Subject:</span> <span id="t2-sub" class="block text-lg font-bold"></span></div>
+                    <div><span class="font-bold uppercase text-gray-500 text-xs">Date:</span> <span id="t2-date" class="block"></span></div>
+                    <div><span class="font-bold uppercase text-gray-500 text-xs">Venue:</span> <span id="t2-ven" class="block"></span></div>
+                    <div><span class="font-bold uppercase text-gray-500 text-xs">Moderator:</span> <span id="t2-mod" class="block"></span></div>
+                    <div class="col-span-2"><span class="font-bold uppercase text-gray-500 text-xs">Hosting Entity:</span> <span id="t2-host" class="block font-bold text-tdmh-blue dark:text-blue-400"></span></div>
+                </div>
+
+                <div class="font-bold mb-2 uppercase text-gray-800 dark:text-white flex justify-between items-end border-b border-gray-300 pb-2">
+                    <span>Attendee Roster</span>
+                    <span class="text-sm bg-gray-200 dark:bg-slate-700 px-3 py-1 rounded-full" id="t2-count">0 Attendees</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead class="bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-300">
                             <tr>
-                                <th class="p-5 font-bold uppercase tracking-wider text-xs">Date & Time</th>
-                                <th class="p-5 font-bold uppercase tracking-wider text-xs">Participant</th>
-                                <th class="p-5 font-bold uppercase tracking-wider text-xs">Department</th>
-                                <th class="p-5 font-bold uppercase tracking-wider text-xs">Meeting Details</th>
-                                <th class="p-5 font-bold uppercase tracking-wider text-xs text-center">Verification</th>
+                                <th class="p-3 border border-gray-300 dark:border-slate-600 font-bold uppercase w-12 text-center">#</th>
+                                <th class="p-3 border border-gray-300 dark:border-slate-600 font-bold uppercase">Participant Name</th>
+                                <th class="p-3 border border-gray-300 dark:border-slate-600 font-bold uppercase">Department</th>
+                                <th class="p-3 border border-gray-300 dark:border-slate-600 font-bold uppercase text-center w-32">Signature</th>
                             </tr>
                         </thead>
-                        <tbody id="data-table-body" class="divide-y divide-gray-100 dark:divide-slate-700 text-gray-700 dark:text-gray-300 bg-white dark:bg-slate-900">
-                            <tr><td colspan="5" class="p-16 text-center text-gray-400 font-medium">Click Refresh to load attendance data.</td></tr>
+                        <tbody id="t2-tbody" class="text-gray-800 dark:text-gray-200">
+                            <!-- Attendees inject here -->
                         </tbody>
                     </table>
                 </div>
-                
-                <div id="dashboard-loader" class="hidden justify-center items-center p-16">
-                    <div class="loader loader-blue"></div>
-                    <span class="ml-3 text-sm font-bold tracking-wide text-tdmh-blue dark:text-blue-400">Fetching records securely...</span>
-                </div>
             </div>
         </div>
     </div>
 
-    <!-- Security: Signature Viewer Modal (Anti-Copy features enabled) -->
-    <div id="signature-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center hidden z-[60]">
-        <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-2xl max-w-md w-full mx-4 border border-gray-100 dark:border-slate-700">
+    <!-- Modals & Toasts -->
+    <div id="signature-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center hidden z-[60] no-print">
+        <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-2xl max-w-md w-full mx-4 border border-gray-100">
             <div class="flex justify-between items-center mb-6">
                 <div>
-                    <h3 class="text-xl font-black text-gray-900 dark:text-white leading-tight">Verified Signature</h3>
-                    <p class="text-[10px] text-green-600 dark:text-green-400 font-bold uppercase tracking-widest mt-1 flex items-center gap-1"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> Secure Record</p>
+                    <h3 class="text-xl font-black text-gray-900 dark:text-white">Verified Signature</h3>
+                    <p class="text-[10px] text-green-600 font-bold uppercase tracking-widest mt-1">Secure Record</p>
                 </div>
-                <button id="btn-close-sig" class="text-gray-400 hover:text-gray-600 dark:hover:text-white bg-gray-100 dark:bg-slate-700 p-2 rounded-full transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                <button id="btn-close-sig" class="text-gray-400 hover:text-gray-600 bg-gray-100 p-2 rounded-full transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
             </div>
-            
-            <!-- Anti-copy wrapper -->
-            <div class="bg-gray-50 dark:bg-slate-900 rounded-2xl p-4 mb-6 border border-gray-200 dark:border-slate-700 flex justify-center relative select-none">
-                <div class="absolute inset-0 z-10" oncontextmenu="return false;"></div> <!-- Invisible shield to block right clicks -->
-                <img id="modal-sig-image" src="" class="max-w-full h-auto bg-white rounded-lg shadow-sm p-3 secure-sig" draggable="false" oncontextmenu="return false;" alt="Signature">
+            <div class="bg-gray-50 rounded-2xl p-4 mb-6 border border-gray-200 flex justify-center relative select-none">
+                <div class="absolute inset-0 z-10" oncontextmenu="return false;"></div>
+                <img id="modal-sig-image" src="" class="max-w-full h-auto bg-white rounded-lg shadow-sm p-3 secure-sig" draggable="false" oncontextmenu="return false;">
             </div>
-            <p id="modal-sig-name" class="text-center font-black text-xl text-tdmh-blue dark:text-blue-400"></p>
-            <p id="modal-sig-dept" class="text-center text-sm font-semibold text-gray-500 uppercase tracking-widest mt-1"></p>
         </div>
     </div>
 
-    <!-- Success Toast Modal -->
-    <div id="success-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center hidden z-[60]">
-        <div class="bg-white dark:bg-slate-800 p-10 rounded-[2rem] shadow-2xl text-center max-w-sm w-full mx-4 transform scale-95 transition-transform duration-300 border border-gray-100 dark:border-slate-700">
-            <div class="w-24 h-24 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-white dark:border-slate-800 shadow-sm">
-                <svg class="w-12 h-12 text-green-500 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+    <div id="success-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center hidden z-[60] no-print">
+        <div class="bg-white dark:bg-slate-800 p-10 rounded-[2rem] shadow-2xl text-center max-w-sm w-full mx-4 transform scale-95 transition-transform duration-300">
+            <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
             </div>
-            <h3 class="text-3xl font-black text-gray-900 dark:text-white mb-3">Recorded Successfully!</h3>
-            <p class="text-gray-600 dark:text-gray-300 mb-10 font-medium leading-relaxed" id="success-msg-name">Your attendance has been secured.</p>
-            <button id="btn-next-person" class="w-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 p-4 rounded-xl font-bold text-lg shadow-xl transition transform hover:-translate-y-1 active:scale-[0.98]">Got it, Close</button>
+            <h3 class="text-3xl font-black text-gray-900 dark:text-white mb-3">Recorded!</h3>
+            <p class="text-gray-600 dark:text-gray-300 mb-10 font-medium" id="success-msg-name"></p>
+            <button id="btn-next-person" class="w-full bg-gray-900 text-white p-4 rounded-xl font-bold text-lg active:scale-[0.98]">Got it, Close</button>
         </div>
     </div>
 
-    <div id="toast-container" class="fixed top-4 right-4 z-[70] flex flex-col gap-2"></div>
+    <div id="toast-container" class="fixed top-4 right-4 z-[70] flex flex-col gap-2 no-print"></div>
 
+    <!-- Scripts -->
     <script>
-        // ==========================================
-        // CONFIGURATION
-        // ==========================================
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzLQUqBjBB_KyM6bvVjuUb6K-LY5L3JP0vZU6aJ0dRUM6k1mOLSIFYOSgAUnLdjXEYn/exec'; 
         
+        // --- GLOBAL MEMORY STATE ---
         let isDarkMode = localStorage.getItem('theme') === 'dark';
         let userRole = null; 
         let cachedData = []; 
         let systemTemplates = [];
-
-        const views = ['view-setup', 'view-qrcode', 'view-attendance', 'view-login', 'view-dashboard'].map(id => document.getElementById(id));
+        let systemDepts = [];
+        let liveFeedInterval = null;
+        let activeMeetingState = null;
+        
+        const views = ['view-setup', 'view-qrcode', 'view-attendance', 'view-login', 'view-dashboard-tier1', 'view-dashboard-tier2'].map(id => document.getElementById(id));
         const htmlEl = document.documentElement;
 
-        // --- SMOOTH THEME ENGINE & PS VITA PEEL ---
+        // --- SMOOTH THEME ENGINE (CURTAIN SWEEP) ---
         function applyTheme(isDark) {
             isDark ? htmlEl.classList.add('dark') : htmlEl.classList.remove('dark');
             document.getElementById('sun-icon').classList.toggle('hidden', !isDark);
@@ -452,27 +536,35 @@
         }
         applyTheme(isDarkMode);
 
-        document.getElementById('theme-toggle').addEventListener('click', () => {
+        document.getElementById('theme-toggle').addEventListener('click', (e) => {
             const overlay = document.getElementById('theme-overlay');
+            const overlayTextBg = document.getElementById('theme-overlay-text-bg');
+            const toggleBtn = e.currentTarget;
             
-            // 1. Snapshot the CURRENT screen color
-            const currentBg = getComputedStyle(document.body).backgroundColor;
-            overlay.style.backgroundColor = currentBg;
+            toggleBtn.style.pointerEvents = 'none';
+
+            const targetThemeIsDark = !isDarkMode;
             
-            // 2. Instantly show the overlay (frozen screen)
-            overlay.classList.remove('peel-out');
-            overlay.style.opacity = '1';
+            overlay.style.backgroundColor = targetThemeIsDark ? '#0f172a' : '#f8fafc';
             
-            // 3. Force browser to paint the overlay
-            void overlay.offsetWidth; 
+            if(targetThemeIsDark) {
+                overlayTextBg.classList.add('bg-white', 'shadow-2xl');
+            } else {
+                overlayTextBg.classList.remove('bg-white', 'shadow-2xl');
+            }
             
-            // 4. Secretly swap the actual theme in the background
-            isDarkMode = !isDarkMode;
-            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-            applyTheme(isDarkMode);
+            overlay.classList.add('sweep-active');
             
-            // 5. Trigger the peel animation, pulling the frozen screen away to reveal the new one
-            overlay.classList.add('peel-out');
+            setTimeout(() => {
+                isDarkMode = targetThemeIsDark;
+                localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+                applyTheme(isDarkMode);
+            }, 750);
+            
+            setTimeout(() => {
+                overlay.classList.remove('sweep-active');
+                toggleBtn.style.pointerEvents = 'all';
+            }, 1600); 
         });
 
         // --- NOTIFICATIONS ---
@@ -480,20 +572,17 @@
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             const bg = type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-slate-800';
-            toast.className = `${bg} text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-3 toast-enter font-bold text-sm border border-white/10`;
+            toast.className = `${bg} text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-3 toast-enter font-bold text-sm z-[99]`;
             toast.innerHTML = type === 'success' ? `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>${msg}` : msg;
             container.appendChild(toast);
-            setTimeout(() => {
-                toast.classList.replace('toast-enter', 'toast-exit');
-                setTimeout(() => toast.remove(), 400);
-            }, 3500);
+            setTimeout(() => { toast.classList.replace('toast-enter', 'toast-exit'); setTimeout(() => toast.remove(), 400); }, 3500);
         }
 
-        // --- ROUTING & INIT ---
         function switchView(viewId) {
             views.forEach(v => v.classList.add('hidden'));
             document.getElementById(viewId).classList.remove('hidden');
             if(viewId === 'view-attendance') setTimeout(resizeCanvas, 100);
+            if(viewId !== 'view-qrcode') stopLiveFeed(); 
         }
 
         async function initApp() {
@@ -501,20 +590,26 @@
                 const res = await fetch(`${APPS_SCRIPT_URL}?action=getDropdowns`, { redirect: "follow" });
                 const data = await res.json();
                 if(data.success) {
+                    systemDepts = data.departments;
                     const deptSelect = document.getElementById('participant-department');
                     deptSelect.innerHTML = '<option value="" disabled selected>Select Department...</option>';
                     data.departments.forEach(d => deptSelect.innerHTML += `<option value="${d}">${d}</option>`);
                     
+                    const hostSelect = document.getElementById('setup-host');
+                    hostSelect.innerHTML = '<option value="" disabled selected>Select Host...</option>';
+                    data.departments.forEach(d => hostSelect.innerHTML += `<option value="${d}">${d}</option>`);
+                    hostSelect.innerHTML += `<option value="OTHER_GUEST" class="font-bold text-orange-600">Other / External Guest (Specify)</option>`;
+                    
+                    const loginDeptSelect = document.getElementById('login-dept');
+                    loginDeptSelect.innerHTML = '<option value="" disabled selected>Select your Department...</option>';
+                    data.departments.forEach(d => loginDeptSelect.innerHTML += `<option value="${d}">${d}</option>`);
+
                     const tempSelect = document.getElementById('setup-template');
                     tempSelect.innerHTML = '<option value="">-- Custom Meeting --</option>';
                     systemTemplates = data.templates; 
                     data.templates.forEach((t, i) => tempSelect.innerHTML += `<option value="${i}">${t[0]}</option>`);
                 }
-            } catch(e) { 
-                console.error("Dropdown fetch error", e);
-                // Notification silenced here so it doesn't bother users on mobile, 
-                // but keeps dropdown empty gracefully if offline.
-            }
+            } catch(e) {}
 
             const savedProfile = JSON.parse(localStorage.getItem('tdmh_profile'));
             if(savedProfile) {
@@ -528,6 +623,7 @@
                 document.getElementById('display-subject').innerText = params.get('s');
                 document.getElementById('display-venue').innerText = params.get('v');
                 document.getElementById('display-moderator').innerText = params.get('m');
+                document.getElementById('app-container').dataset.host = params.get('h');
                 switchView('view-attendance');
             } else {
                 switchView('view-setup');
@@ -535,14 +631,25 @@
         }
         initApp();
 
-        // --- CLOCK ---
         setInterval(() => {
             const now = new Date();
             document.getElementById('live-time').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             document.getElementById('live-date').innerText = now.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
         }, 1000);
 
-        // --- SETUP & TEMPLATES ---
+        document.getElementById('setup-host').addEventListener('change', (e) => {
+            const customContainer = document.getElementById('custom-host-container');
+            const customInput = document.getElementById('setup-custom-host');
+            if(e.target.value === 'OTHER_GUEST') {
+                customContainer.classList.remove('hidden');
+                customInput.required = true;
+            } else {
+                customContainer.classList.add('hidden');
+                customInput.required = false;
+                customInput.value = '';
+            }
+        });
+
         document.getElementById('setup-template').addEventListener('change', (e) => {
             const idx = e.target.value;
             if(idx !== "") {
@@ -550,8 +657,17 @@
                 document.getElementById('setup-subject').value = t[1];
                 document.getElementById('setup-venue').value = t[2];
                 document.getElementById('setup-moderator').value = t[3];
+                
+                const hostSelect = document.getElementById('setup-host');
+                if(t[4]) {
+                    if([...hostSelect.options].some(o => o.value === t[4])) {
+                        hostSelect.value = t[4];
+                        document.getElementById('setup-host').dispatchEvent(new Event('change'));
+                    }
+                }
             } else {
                 document.getElementById('setup-form').reset();
+                document.getElementById('setup-host').dispatchEvent(new Event('change'));
             }
         });
 
@@ -560,116 +676,135 @@
             const s = document.getElementById('setup-subject').value;
             const v = document.getElementById('setup-venue').value;
             const m = document.getElementById('setup-moderator').value;
+            let h = document.getElementById('setup-host').value;
+            
+            if(h === 'OTHER_GUEST') h = "[GUEST] " + document.getElementById('setup-custom-host').value;
             
             document.getElementById('display-subject').innerText = s;
             document.getElementById('display-venue').innerText = v;
             document.getElementById('display-moderator').innerText = m;
+            document.getElementById('app-container').dataset.host = h; 
 
             const qrContainer = document.getElementById('qr-container');
             qrContainer.innerHTML = '';
             
-            const url = new URL(window.location.href);
-            url.searchParams.set('s', s);
-            url.searchParams.set('v', v);
-            url.searchParams.set('m', m);
+            let baseUrl = window.location.href.split('?')[0];
+            if (baseUrl.startsWith('blob:')) baseUrl = 'https://tdmh-cqi.github.io/Attendance/';
             
-            new QRCode(qrContainer, { text: url.toString(), width: 220, height: 220, colorDark : "#1e3a8a", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H });
+            const url = new URL(baseUrl);
+            url.searchParams.set('s', s); 
+            url.searchParams.set('v', v); 
+            url.searchParams.set('m', m); 
+            url.searchParams.set('h', h);
             
+            new QRCode(qrContainer, { 
+                text: url.toString(), 
+                width: 220, 
+                height: 220, 
+                colorDark : "#1e3a8a", 
+                colorLight : "#ffffff", 
+                correctLevel : QRCode.CorrectLevel.L 
+            });
+            
+            activeMeetingState = { s: s, v: v, m: m, h: h };
+            document.getElementById('btn-resume-meeting').classList.remove('hidden');
+
             switchView('view-qrcode');
             showNotification("Meeting Initialized. Ready for scans.", "success");
+            startLiveFeed(s, v, m);
         });
 
         document.getElementById('btn-proceed-signin').addEventListener('click', () => switchView('view-attendance'));
-        document.getElementById('btn-back-setup').addEventListener('click', () => switchView('view-setup'));
-        document.getElementById('btn-back-to-qr').addEventListener('click', () => switchView('view-qrcode')); // NEW CANCEL BUTTON
+        
+        document.getElementById('btn-edit-meeting').addEventListener('click', () => {
+            switchView('view-setup');
+        });
 
-        // --- SIGNATURE PAD (Fixed Disappearing Bug) ---
+        document.getElementById('btn-end-meeting').addEventListener('click', () => {
+            activeMeetingState = null;
+            document.getElementById('btn-resume-meeting').classList.add('hidden');
+            document.getElementById('setup-form').reset();
+            document.getElementById('setup-host').dispatchEvent(new Event('change'));
+            showNotification("Meeting ended and cleared.", "info");
+            switchView('view-setup');
+        });
+
+        document.getElementById('btn-resume-meeting').addEventListener('click', () => {
+            if(activeMeetingState) {
+                switchView('view-qrcode');
+                startLiveFeed(activeMeetingState.s, activeMeetingState.v, activeMeetingState.m);
+            }
+        });
+
+        document.getElementById('btn-back-to-qr').addEventListener('click', () => switchView('view-qrcode'));
+
+        function startLiveFeed(sub, ven, mod) {
+            const listEl = document.getElementById('live-feed-list');
+            const countEl = document.getElementById('live-headcount');
+            listEl.innerHTML = '<div class="text-center text-gray-400 italic text-sm mt-10">Waiting for attendees...</div>';
+            countEl.innerText = '0';
+            
+            const today = new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+            
+            liveFeedInterval = setInterval(async () => {
+                try {
+                    const url = `${APPS_SCRIPT_URL}?action=getLiveFeed&s=${encodeURIComponent(sub)}&v=${encodeURIComponent(ven)}&m=${encodeURIComponent(mod)}&date=${encodeURIComponent(today)}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    
+                    if(data.success && data.feed.length > 0) {
+                        countEl.innerText = data.feed.length;
+                        listEl.innerHTML = data.feed.map((a, i) => `
+                            <div class="bg-white dark:bg-slate-800 p-3 rounded-lg border border-gray-200 dark:border-slate-700 shadow-sm flex items-center animate-[slideInRight_0.3s_ease-out]">
+                                <span class="text-tdmh-blue dark:text-blue-400 font-black text-lg mr-3 w-6 text-right">${i+1}.</span>
+                                <div>
+                                    <div class="font-bold text-gray-900 dark:text-white leading-tight">${a.name}</div>
+                                    <div class="text-[10px] text-gray-500 uppercase font-semibold tracking-wider">${a.dept}</div>
+                                </div>
+                            </div>
+                        `).join('');
+                        listEl.scrollTop = listEl.scrollHeight;
+                    }
+                } catch(e) {}
+            }, 5000); 
+        }
+
+        function stopLiveFeed() {
+            if(liveFeedInterval) clearInterval(liveFeedInterval);
+        }
+
         const canvas = document.getElementById('signature-pad');
         const ctx = canvas.getContext('2d');
-        let isDrawing = false, hasSigned = false;
-        let savedSigData = null; // Memory state for resizing
-        let currentCanvasWidth = 0; // Tracks actual width to prevent false-resizes
+        let isDrawing = false, hasSigned = false, savedSigData = null, currentCanvasWidth = 0; 
 
         function resizeCanvas() {
             if(document.getElementById('view-attendance').classList.contains('hidden')) return;
-            
             const newWidth = canvas.offsetWidth;
-            // ONLY resize if the screen physically changed width (prevents keyboard bugs on mobile)
             if (currentCanvasWidth === newWidth && canvas.width !== 0) return; 
-            
-            // Save current drawing if it exists BEFORE resizing clears it
             if(hasSigned) savedSigData = canvas.toDataURL();
-
             const ratio = Math.max(window.devicePixelRatio || 1, 1);
-            canvas.width = canvas.offsetWidth * ratio;
-            canvas.height = canvas.offsetHeight * ratio;
-            ctx.scale(ratio, ratio);
-            
-            currentCanvasWidth = newWidth;
-            
-            // Restore drawing
-            redrawSignature();
-        }
-        
-        function redrawSignature() {
+            canvas.width = canvas.offsetWidth * ratio; canvas.height = canvas.offsetHeight * ratio;
+            ctx.scale(ratio, ratio); currentCanvasWidth = newWidth;
             if(hasSigned && savedSigData) {
-                const img = new Image();
-                img.onload = () => {
-                    const ratio = Math.max(window.devicePixelRatio || 1, 1);
-                    ctx.drawImage(img, 0, 0, canvas.width/ratio, canvas.height/ratio);
-                };
-                img.src = savedSigData;
+                const img = new Image(); img.onload = () => ctx.drawImage(img, 0, 0, canvas.width/ratio, canvas.height/ratio); img.src = savedSigData;
             }
         }
         
-        // Listen for resize, but debounced slightly to prevent jank
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(resizeCanvas, 100);
-        });
-
-        function getPos(e) {
-            const rect = canvas.getBoundingClientRect();
-            return e.touches ? { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top } 
-                             : { x: e.clientX - rect.left, y: e.clientY - rect.top };
-        }
-
+        let resizeTimeout; window.addEventListener('resize', () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(resizeCanvas, 100); });
+        function getPos(e) { const r = canvas.getBoundingClientRect(); return e.touches ? { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top } : { x: e.clientX - r.left, y: e.clientY - r.top }; }
         function startDrawing(e) { isDrawing = true; hasSigned = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); }
-        function draw(e) { 
-            if (!isDrawing) return; 
-            const p = getPos(e); ctx.lineTo(p.x, p.y); 
-            ctx.strokeStyle = isDarkMode ? '#1e293b' : '#0f172a'; 
-            ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.stroke(); e.preventDefault(); 
-        }
-        function stopDrawing() { 
-            if(isDrawing) {
-                isDrawing = false; 
-                savedSigData = canvas.toDataURL(); // Save state immediately after stroke
-            }
-        }
+        function draw(e) { if (!isDrawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.strokeStyle = isDarkMode ? '#1e293b' : '#0f172a'; ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.stroke(); e.preventDefault(); }
+        function stopDrawing() { if(isDrawing) { isDrawing = false; savedSigData = canvas.toDataURL(); } }
 
         canvas.addEventListener('mousedown', startDrawing); canvas.addEventListener('mousemove', draw);
         canvas.addEventListener('mouseup', stopDrawing); canvas.addEventListener('mouseout', stopDrawing);
         canvas.addEventListener('touchstart', startDrawing, { passive: false }); canvas.addEventListener('touchmove', draw, { passive: false });
         canvas.addEventListener('touchend', stopDrawing);
+        document.getElementById('btn-clear-sig').addEventListener('click', () => { ctx.clearRect(0, 0, canvas.width, canvas.height); hasSigned = false; savedSigData = null; });
 
-        document.getElementById('btn-clear-sig').addEventListener('click', () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height); 
-            hasSigned = false;
-            savedSigData = null;
-        });
-
-
-        // --- SUBMIT ATTENDANCE ---
         document.getElementById('attendance-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (!hasSigned) {
-                showNotification("Signature is required.", "error");
-                canvas.parentElement.classList.add('animate-pulse');
-                setTimeout(() => canvas.parentElement.classList.remove('animate-pulse'), 800);
-                return;
-            }
+            if (!hasSigned) { showNotification("Signature required.", "error"); return; }
 
             const name = document.getElementById('participant-name').value;
             const dept = document.getElementById('participant-department').value;
@@ -677,219 +812,254 @@
             const remember = document.getElementById('remember-me').checked;
             const btn = document.getElementById('submit-btn');
 
-            if(remember) {
-                localStorage.setItem('tdmh_profile', JSON.stringify({name: name, dept: dept}));
-            } else {
-                localStorage.removeItem('tdmh_profile');
-            }
+            if(remember) localStorage.setItem('tdmh_profile', JSON.stringify({name: name, dept: dept}));
+            else localStorage.removeItem('tdmh_profile');
 
             const payload = {
                 subject: document.getElementById('display-subject').innerText,
                 venue: document.getElementById('display-venue').innerText,
                 moderator: document.getElementById('display-moderator').innerText,
+                hostEntity: document.getElementById('app-container').dataset.host || 'Unknown',
                 name: name, department: dept, email: email,
                 signature: canvas.toDataURL()
             };
 
-            btn.disabled = true; btn.innerHTML = `<div class="loader mr-2"></div> Submitting Securely...`;
+            btn.disabled = true; btn.innerHTML = `<div class="loader mr-2"></div> Submitting...`;
 
             try {
-                const response = await fetch(APPS_SCRIPT_URL, { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload) 
-                });
-                const resultText = await response.text(); 
-                
-                document.getElementById('success-msg-name').innerHTML = `Thank you, <strong class="text-tdmh-blue dark:text-blue-400 font-black">${name}</strong>.<br>Your record is safe.`;
+                await fetch(APPS_SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+                document.getElementById('success-msg-name').innerHTML = `<strong class="text-tdmh-blue dark:text-blue-400 font-black">${name}</strong>`;
                 document.getElementById('success-modal').classList.remove('hidden');
-
-                // Reset
                 document.getElementById('attendance-form').reset();
-                if(remember) {
-                    document.getElementById('participant-name').value = name;
-                    document.getElementById('participant-department').value = dept;
-                    document.getElementById('remember-me').checked = true;
-                }
-                document.getElementById('btn-clear-sig').click(); // clean canvas & memory
+                if(remember) { document.getElementById('participant-name').value = name; document.getElementById('participant-department').value = dept; document.getElementById('remember-me').checked = true; }
+                document.getElementById('btn-clear-sig').click();
+            } catch (error) { showNotification("Submission failed.", "error"); } 
+            finally { btn.disabled = false; btn.innerHTML = `Submit Secure Attendance`; }
+        });
 
-            } catch (error) {
-                showNotification("Submission failed. Check connection.", "error");
-            } finally {
-                btn.disabled = false; btn.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg> Submit Secure Attendance`;
+        const loginTitle = document.getElementById('login-title');
+        let loginMode = 'admin';
+        
+        document.getElementById('btn-nav-admin').addEventListener('click', () => { 
+            loginMode = 'admin';
+            loginTitle.innerText = "Admin Portal"; 
+            document.getElementById('login-user-container').classList.remove('hidden');
+            document.getElementById('login-user').required = true;
+            document.getElementById('login-dept-container').classList.add('hidden');
+            document.getElementById('login-dept').required = false;
+            switchView('view-login'); 
+        });
+        
+        document.getElementById('btn-nav-dept').addEventListener('click', () => { 
+            loginMode = 'dept';
+            loginTitle.innerText = "Dept Head Portal"; 
+            document.getElementById('login-dept-container').classList.remove('hidden');
+            document.getElementById('login-dept').required = true;
+            document.getElementById('login-user-container').classList.add('hidden');
+            document.getElementById('login-user').required = false;
+            switchView('view-login'); 
+        });
+        
+        document.getElementById('btn-cancel-login').addEventListener('click', () => {
+            if(activeMeetingState) {
+                switchView('view-qrcode');
+                startLiveFeed(activeMeetingState.s, activeMeetingState.v, activeMeetingState.m);
+            } else {
+                switchView('view-setup');
             }
         });
-
-        document.getElementById('btn-next-person').addEventListener('click', () => {
-            document.getElementById('success-modal').classList.add('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-
-
-        // --- LOGIN & DASHBOARD (ROLE BASED) ---
-        const btnNavAdmin = document.getElementById('btn-nav-admin');
-        const btnNavDept = document.getElementById('btn-nav-dept');
-        const loginGroup = document.getElementById('nav-login-group');
-        const btnLogoutNav = document.getElementById('nav-logout-btn');
-        const loginTitle = document.getElementById('login-title');
-
-        btnNavAdmin.addEventListener('click', () => {
-            loginTitle.innerText = "Admin Portal";
-            switchView('view-login');
-        });
-
-        btnNavDept.addEventListener('click', () => {
-            loginTitle.innerText = "Dept Head Portal";
-            switchView('view-login');
-        });
-
-        document.getElementById('btn-cancel-login').addEventListener('click', () => switchView('view-setup'));
         
-        btnLogoutNav.addEventListener('click', () => {
+        document.getElementById('nav-logout-btn').addEventListener('click', () => {
             userRole = null; 
-            btnLogoutNav.classList.add('hidden'); 
-            loginGroup.classList.remove('hidden');
+            document.getElementById('nav-logged-in-group').classList.add('hidden'); 
+            document.getElementById('nav-login-group').classList.remove('hidden');
             switchView('view-setup'); 
-            showNotification("Securely logged out.", "info");
+            showNotification("Logged out.", "info");
+        });
+
+        document.getElementById('nav-dashboard-btn').addEventListener('click', () => {
+            setupTier1Dashboard();
+            switchView('view-dashboard-tier1');
+        });
+
+        document.getElementById('btn-start-meeting').addEventListener('click', () => {
+            document.getElementById('setup-form').reset();
+            document.getElementById('setup-host').dispatchEvent(new Event('change'));
+            
+            if(userRole !== 'Admin') {
+                const hostSelect = document.getElementById('setup-host');
+                if(hostSelect.querySelector(`option[value="${userRole}"]`)) {
+                    hostSelect.value = userRole;
+                    document.getElementById('setup-moderator').value = userRole + " Head";
+                    hostSelect.dispatchEvent(new Event('change'));
+                }
+            }
+            switchView('view-setup');
         });
 
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const u = document.getElementById('login-user').value;
+            const btn = document.getElementById('btn-login-submit'); btn.innerHTML = `<div class="loader"></div>`; btn.disabled = true;
+            
+            const u = loginMode === 'admin' ? document.getElementById('login-user').value : document.getElementById('login-dept').value;
             const p = document.getElementById('login-pass').value;
-            const btn = document.getElementById('btn-login-submit');
-            btn.innerHTML = `<div class="loader"></div>`; btn.disabled = true;
 
             try {
                 const res = await fetch(`${APPS_SCRIPT_URL}?action=login&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`);
                 const data = await res.json();
-
                 if(data.success) {
-                    userRole = data.role; // e.g. 'Admin' or 'Nursing'
-                    document.getElementById('login-form').reset();
-                    showNotification(`Welcome, ${userRole}!`, "success");
+                    userRole = data.role; document.getElementById('login-form').reset();
+                    document.getElementById('nav-login-group').classList.add('hidden'); 
+                    document.getElementById('nav-logged-in-group').classList.remove('hidden');
                     
-                    loginGroup.classList.add('hidden'); 
-                    btnLogoutNav.classList.remove('hidden');
-                    setupDashboardForRole();
-                    switchView('view-dashboard');
-                } else {
-                    showNotification("Invalid credentials.", "error");
-                }
+                    setupTier1Dashboard();
+                    switchView('view-dashboard-tier1');
+                } else showNotification("Invalid credentials.", "error");
             } catch(error) { showNotification("Connection error.", "error"); } 
             finally { btn.innerHTML = 'Sign In Securely'; btn.disabled = false; }
         });
 
-        function setupDashboardForRole() {
-            document.getElementById('role-badge').innerText = userRole;
-            const deptFilterContainer = document.getElementById('filter-dept-container');
-            const deptFilter = document.getElementById('filter-dept');
+        function setupTier1Dashboard() {
+            document.getElementById('role-badge-1').innerText = userRole;
+            const hostFilter = document.getElementById('admin-host-filter');
+            const selectEl = document.getElementById('filter-host-select');
             
             if (userRole === 'Admin') {
-                deptFilterContainer.classList.remove('hidden');
-                const options = Array.from(document.getElementById('participant-department').options).map(o => o.value).filter(v => v && v !== 'Loading');
-                deptFilter.innerHTML = '<option value="">All Departments</option>' + options.map(d => `<option value="${d}">${d}</option>`).join('');
+                hostFilter.classList.remove('hidden');
+                document.getElementById('admin-active-meetings-section').classList.remove('hidden');
+                document.getElementById('archive-title-label').classList.remove('hidden');
+                selectEl.innerHTML = '<option value="">All Hosted Meetings</option>' + systemDepts.map(d => `<option value="${d}">${d}</option>`).join('') + '<option value="[GUEST]">Guests / Uncategorized</option>';
+                selectEl.onchange = renderFolders;
             } else {
-                deptFilterContainer.classList.add('hidden');
-                deptFilter.innerHTML = `<option value="${userRole}">${userRole}</option>`;
-                deptFilter.value = userRole;
+                hostFilter.classList.add('hidden');
+                document.getElementById('admin-active-meetings-section').classList.add('hidden');
+                document.getElementById('archive-title-label').classList.add('hidden');
             }
             fetchDashboardData();
         }
 
-        document.getElementById('btn-refresh-data').addEventListener('click', fetchDashboardData);
-        document.getElementById('btn-apply-filters').addEventListener('click', renderTable);
-
         async function fetchDashboardData() {
             if(!userRole) return;
-            const tbody = document.getElementById('data-table-body');
-            const loader = document.getElementById('dashboard-loader');
-            
-            tbody.innerHTML = ''; loader.classList.remove('hidden'); loader.classList.add('flex');
-
+            document.getElementById('meeting-folders-container').innerHTML = ''; 
+            document.getElementById('tier1-loader').classList.remove('hidden'); document.getElementById('tier1-loader').classList.add('flex');
             try {
                 const response = await fetch(`${APPS_SCRIPT_URL}?action=getData`);
                 const result = await response.json();
-                
                 if(result.success && result.data.length > 1) {
-                    const rows = result.data.slice(1);
-                    cachedData = rows.map(r => {
-                        let dDate = r[0];
-                        let dTime = r[1];
-                        
-                        if (typeof dDate === 'string' && dDate.includes('T')) {
-                            const parsedDate = new Date(dDate);
-                            if (!isNaN(parsedDate)) dDate = parsedDate.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
-                        }
-                        if (typeof dTime === 'string' && dTime.includes('T')) {
-                            const parsedTime = new Date(dTime);
-                            if (!isNaN(parsedTime)) dTime = parsedTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-                        }
-
-                        return { date: dDate, time: dTime, subject: r[2], venue: r[3], moderator: r[4], name: r[5], dept: r[6], email: r[7], sig: r[8] };
+                    cachedData = result.data.slice(1).map(r => {
+                        let dDate = r[0]; let dTime = r[1];
+                        if (typeof dDate === 'string' && dDate.includes('T')) { const pd = new Date(dDate); if (!isNaN(pd)) dDate = pd.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }); }
+                        if (typeof dTime === 'string' && dTime.includes('T')) { const pt = new Date(dTime); if (!isNaN(pt)) dTime = pt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); }
+                        return { date: dDate, time: dTime, subject: r[2], venue: r[3], moderator: r[4], name: r[5], dept: r[6], email: r[7], host: r[8], sig: r[9] };
                     }).reverse();
-                    renderTable();
-                } else {
-                    tbody.innerHTML = `<tr><td colspan="5" class="p-12 text-center text-gray-500 font-semibold">No records found.</td></tr>`;
+                    renderFolders();
                 }
-            } catch (error) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-12 text-center text-red-500 font-bold">Connection error. Please retry.</td></tr>`;
-            } finally {
-                loader.classList.add('hidden'); loader.classList.remove('flex');
-            }
+            } catch (error) {} 
+            finally { document.getElementById('tier1-loader').classList.add('hidden'); document.getElementById('tier1-loader').classList.remove('flex'); }
         }
 
-        function renderTable() {
-            const tbody = document.getElementById('data-table-body');
-            const fDept = document.getElementById('filter-dept').value.toLowerCase();
-            const fFrom = document.getElementById('filter-date-from').value; 
-            const fTo = document.getElementById('filter-date-to').value; 
-
-            const filtered = cachedData.filter(item => {
-                if (fDept && item.dept.toLowerCase() !== fDept) return false;
-                
-                // Very basic string filtering if Google Sheets formatting matches
-                if (fFrom || fTo) {
-                    const parts = item.date.split('/');
-                    if(parts.length === 3) {
-                        const code = `${parts[2]}-${parts[0].padStart(2,'0')}-${parts[1].padStart(2,'0')}`;
-                        if(fFrom && code < fFrom) return false;
-                        if(fTo && code > fTo) return false;
-                    }
+        function renderFolders() {
+            const container = document.getElementById('meeting-folders-container');
+            const activeContainer = document.getElementById('active-meetings-container');
+            const adminFilter = document.getElementById('filter-host-select') ? document.getElementById('filter-host-select').value : '';
+            
+            const todayStr = new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+            
+            const meetings = {};
+            cachedData.forEach(row => {
+                let include = false;
+                if (userRole === 'Admin') {
+                    if(!adminFilter) include = true;
+                    else if(adminFilter === '[GUEST]' && row.host.startsWith('[GUEST]')) include = true;
+                    else if(row.host === adminFilter) include = true;
+                } else {
+                    if(row.host === userRole) include = true;
                 }
-                return true;
+
+                if(include) {
+                    const meetingKey = `${row.date}|${row.subject}|${row.venue}|${row.host}|${row.moderator}`;
+                    if(!meetings[meetingKey]) meetings[meetingKey] = [];
+                    meetings[meetingKey].push(row);
+                }
             });
 
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-12 text-center italic text-gray-500 font-semibold">No matching records found.</td></tr>`;
+            const keys = Object.keys(meetings);
+            if(keys.length === 0) {
+                container.innerHTML = `<div class="col-span-3 p-12 text-center text-gray-500 font-semibold border-2 border-dashed border-gray-200 rounded-2xl">No recorded meetings found for this entity.</div>`;
+                if(userRole === 'Admin') activeContainer.innerHTML = `<div class="col-span-3 p-6 text-center text-gray-400 italic">No meetings conducted today.</div>`;
                 return;
             }
 
-            tbody.innerHTML = filtered.map((row, i) => `
-                <tr class="hover:bg-blue-50/50 dark:hover:bg-slate-800/50 transition-colors group">
-                    <td class="p-5"><div class="font-black text-gray-900 dark:text-gray-100">${row.date}</div><div class="text-xs font-bold text-gray-500 mt-1">${row.time}</div></td>
-                    <td class="p-5"><div class="font-bold text-tdmh-blue dark:text-blue-300 text-base">${row.name}</div><div class="text-[11px] text-gray-400 font-semibold tracking-wider mt-1">${row.email || 'NO EMAIL'}</div></td>
-                    <td class="p-5"><span class="px-3 py-1 bg-gray-100 dark:bg-slate-700 rounded-md text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-slate-600">${row.dept}</span></td>
-                    <td class="p-5"><div class="font-bold text-gray-800 dark:text-gray-200">${row.subject}</div><div class="text-xs font-semibold text-gray-500 mt-1">${row.venue} • ${row.moderator}</div></td>
-                    <td class="p-5 text-center">
-                        ${row.sig && row.sig.startsWith('data:image') 
-                            ? `<button onclick="viewSignature('${i}')" class="px-4 py-2 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl shadow-sm hover:border-tdmh-accent hover:text-tdmh-accent text-xs font-black text-tdmh-blue dark:text-blue-300 transition-all flex items-center justify-center gap-1.5 mx-auto group-hover:shadow-md"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg> VIEW</button>` 
-                            : '<span class="text-[10px] font-black tracking-widest text-red-500 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded uppercase">Missing</span>'}
+            let activeHTML = '';
+            let archiveHTML = '';
+
+            keys.forEach((key) => {
+                const parts = key.split('|');
+                const attendees = meetings[key];
+                const isGuest = parts[3].startsWith('[GUEST]');
+                
+                const blockHTML = `
+                <div onclick="openMeetingTier2('${encodeURIComponent(key)}')" class="bg-white dark:bg-slate-900 p-6 rounded-2xl border ${isGuest ? 'border-orange-300 shadow-orange-100/50' : 'border-gray-200 dark:border-slate-700'} shadow-sm hover:shadow-md hover:border-tdmh-blue transition-all cursor-pointer group">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-3 ${isGuest ? 'bg-orange-100 text-orange-600' : 'bg-tdmh-light text-tdmh-blue dark:bg-slate-800 dark:text-blue-400'} rounded-xl group-hover:scale-110 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+                        </div>
+                        <span class="text-xs font-black bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded">${attendees.length} Signed</span>
+                    </div>
+                    <h3 class="font-bold text-lg text-gray-900 dark:text-white leading-tight mb-1 line-clamp-1">${parts[1]}</h3>
+                    <p class="text-xs text-gray-500 font-semibold mb-3">${parts[0]} • ${parts[2]}</p>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-white px-2 py-0.5 rounded ${isGuest ? 'bg-orange-500' : 'bg-gray-800 dark:bg-gray-600'}">${parts[3]}</span>
+                    </div>
+                </div>`;
+
+                if (userRole === 'Admin' && parts[0] === todayStr) {
+                    activeHTML += blockHTML;
+                } else {
+                    archiveHTML += blockHTML;
+                }
+            });
+            
+            if (userRole === 'Admin') {
+                activeContainer.innerHTML = activeHTML || `<div class="col-span-3 p-6 text-center text-gray-400 italic bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-gray-200 dark:border-slate-700">No active operations detected today.</div>`;
+            }
+
+            container.innerHTML = archiveHTML || `<div class="col-span-3 p-12 text-center text-gray-500 font-semibold border-2 border-dashed border-gray-200 rounded-2xl">No historical records found.</div>`;
+        }
+
+        window.openMeetingTier2 = function(encodedKey) {
+            const key = decodeURIComponent(encodedKey);
+            const parts = key.split('|');
+            const attendees = cachedData.filter(r => `${r.date}|${r.subject}|${r.venue}|${r.host}|${r.moderator}` === key);
+            
+            document.getElementById('t2-sub').innerText = parts[1];
+            document.getElementById('t2-date').innerText = parts[0];
+            document.getElementById('t2-ven').innerText = parts[2];
+            document.getElementById('t2-host').innerText = parts[3];
+            document.getElementById('t2-mod').innerText = parts[4];
+            document.getElementById('t2-count').innerText = `${attendees.length} Attendees`;
+
+            document.getElementById('t2-tbody').innerHTML = attendees.map((r, i) => `
+                <tr class="border-b border-gray-100 dark:border-slate-700">
+                    <td class="p-3 text-center font-bold text-gray-400 border border-gray-200 dark:border-slate-700">${i+1}</td>
+                    <td class="p-3 border border-gray-200 dark:border-slate-700"><div class="font-bold">${r.name}</div><div class="text-[10px] text-gray-500">${r.email || 'N/A'} • ${r.time}</div></td>
+                    <td class="p-3 border border-gray-200 dark:border-slate-700 font-semibold text-xs uppercase tracking-wider">${r.dept}</td>
+                    <td class="p-3 border border-gray-200 dark:border-slate-700 text-center">
+                        ${r.sig && r.sig.startsWith('data:image') 
+                            ? `<img src="${r.sig}" class="h-10 mx-auto bg-white border border-gray-200 rounded p-1 cursor-pointer hover:border-tdmh-blue no-print" onclick="viewSigOnly('${r.sig}')" title="Click to verify">
+                               <img src="${r.sig}" class="h-10 mx-auto hidden print:block">` 
+                            : '<span class="text-[10px] text-red-500 font-bold uppercase">No Sig</span>'}
                     </td>
                 </tr>
             `).join('');
+
+            switchView('view-dashboard-tier2');
         }
 
-        // --- SECURE SIGNATURE MODAL ---
-        window.viewSignature = function(index) {
-            const data = cachedData[index];
-            document.getElementById('modal-sig-image').src = data.sig;
-            document.getElementById('modal-sig-name').innerText = data.name;
-            document.getElementById('modal-sig-dept').innerText = data.dept + " Department";
+        window.viewSigOnly = function(imgSrc) {
+            document.getElementById('modal-sig-image').src = imgSrc;
             document.getElementById('signature-modal').classList.remove('hidden');
         }
-        document.getElementById('btn-close-sig').addEventListener('click', () => document.getElementById('signature-modal').classList.add('hidden'));
-
     </script>
 </body>
 </html>
