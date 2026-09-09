@@ -316,6 +316,10 @@
                                 End Meeting
                             </button>
                         </div>
+                        <button id="btn-record-audio" class="w-full mt-1 bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white p-3 rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4 text-red-500 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clip-rule="evenodd"></path></svg>
+                            Start Audio Recording
+                        </button>
                     </div>
                 </div>
                 
@@ -525,9 +529,9 @@
 
             <!-- Printable Document Header -->
             <div class="p-8 md:p-12 pb-4" id="print-area">
-                <div class="text-center border-b-2 border-gray-900 pb-6 mb-6">
-                    <h1 class="text-2xl font-black uppercase tracking-wider text-gray-900 dark:text-white">Official Attendance Record</h1>
-                    <p class="text-sm font-bold text-gray-600 dark:text-gray-400 uppercase mt-1">Taytay Doctors Multispecialty Hospital</p>
+                <div class="text-center border-b-2 border-gray-900 pb-6 mb-6 flex flex-col items-center justify-center">
+                    <img src="images%20logo/tdmh-logo.png" alt="TDMH Logo" class="h-16 md:h-20 mb-3 object-contain" onerror="this.src='https://placehold.co/400x120/1e3a8a/ffffff?text=TDMH+Logo'">
+                    <h1 class="text-xl md:text-2xl font-black uppercase tracking-wider text-gray-900 dark:text-white">Official Attendance Record</h1>
                 </div>
                 
                 <div class="grid grid-cols-2 gap-4 text-sm mb-8 text-gray-800 dark:text-gray-200 font-medium print-border">
@@ -627,6 +631,9 @@
         let activeMeetingState = null;
         let idleTimeout = null; // Screensaver tracker
         let attendanceChart = null; // Chart variable
+        let mediaRecorder = null; // Audio recorder
+        let audioChunks = [];
+        let isRecording = false;
         
         const views = ['view-setup', 'view-qrcode', 'view-attendance', 'view-login', 'view-dashboard-tier1', 'view-dashboard-tier2'].map(id => document.getElementById(id));
         const htmlEl = document.documentElement;
@@ -960,6 +967,69 @@
             switchView('view-setup');
         });
 
+        document.getElementById('btn-record-audio').addEventListener('click', async () => {
+            const btn = document.getElementById('btn-record-audio');
+            
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+                    
+                    mediaRecorder.ondataavailable = e => { if(e.data.size > 0) audioChunks.push(e.data); };
+                    
+                    mediaRecorder.onstop = async () => {
+                        btn.innerHTML = `<div class="loader mr-2"></div> Uploading...`;
+                        btn.disabled = true;
+                        
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        const reader = new FileReader();
+                        reader.readAsDataURL(audioBlob);
+                        reader.onloadend = async () => {
+                            const base64Audio = reader.result;
+                            const payload = {
+                                action: "uploadAudio",
+                                subject: activeMeetingState.s,
+                                venue: activeMeetingState.v,
+                                moderator: activeMeetingState.m,
+                                hostEntity: activeMeetingState.h,
+                                filename: `TDMH_Audio_${activeMeetingState.s.replace(/[^a-z0-9]/gi, '_')}_${Date.now()}.webm`,
+                                mimeType: 'audio/webm',
+                                audioBase64: base64Audio
+                            };
+                            
+                            try {
+                                const res = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+                                const data = await res.json();
+                                if(data.status === 'success') showNotification("Audio securely saved to Drive!", "success");
+                                else showNotification("Audio upload failed.", "error");
+                            } catch(e) { showNotification("Network error on upload.", "error"); }
+                            finally {
+                                btn.innerHTML = `<svg class="w-4 h-4 text-red-500 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clip-rule="evenodd"></path></svg> Start Audio Recording`;
+                                btn.classList.replace('bg-red-600', 'bg-slate-800');
+                                btn.classList.replace('hover:bg-red-700', 'hover:bg-slate-900');
+                                btn.disabled = false;
+                            }
+                        };
+                    };
+                    
+                    mediaRecorder.start();
+                    isRecording = true;
+                    btn.innerHTML = `🛑 Stop & Save Recording`;
+                    btn.classList.replace('bg-slate-800', 'bg-red-600');
+                    btn.classList.replace('hover:bg-slate-900', 'hover:bg-red-700');
+                    showNotification("Microphone live. Recording started.", "info");
+                    
+                } catch (err) {
+                    showNotification("Microphone access denied. Check browser permissions.", "error");
+                }
+            } else {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(t => t.stop());
+                isRecording = false;
+            }
+        });
+
         document.getElementById('btn-resume-meeting').addEventListener('click', () => {
             if(activeMeetingState) {
                 generateQROnScreen(activeMeetingState.s, activeMeetingState.v, activeMeetingState.m, activeMeetingState.h);
@@ -1257,7 +1327,8 @@
                         let dDate = r[0]; let dTime = r[1];
                         if (typeof dDate === 'string' && dDate.includes('T')) { const pd = new Date(dDate); if (!isNaN(pd)) dDate = pd.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }); }
                         if (typeof dTime === 'string' && dTime.includes('T')) { const pt = new Date(dTime); if (!isNaN(pt)) dTime = pt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); }
-                        return { date: dDate, time: dTime, subject: r[2], venue: r[3], moderator: r[4], name: r[5], dept: r[6], email: r[7], host: r[8], sig: r[9] };
+                        // Added `audio: r[10]` to fetch the link
+                        return { date: dDate, time: dTime, subject: r[2], venue: r[3], moderator: r[4], name: r[5], dept: r[6], email: r[7], host: r[8], sig: r[9], audio: r[10] };
                     }).reverse();
                     
                     // Save to browser temporary memory
@@ -1387,6 +1458,21 @@
             document.getElementById('t2-host').innerText = parts[3];
             document.getElementById('t2-mod').innerText = parts[4];
             document.getElementById('t2-count').innerText = `${attendees.length} Attendees`;
+
+            // Check if meeting has an audio link
+            const audioLink = attendees.length > 0 && attendees[0].audio ? attendees[0].audio : null;
+            const audioSection = document.getElementById('t2-audio-section');
+            if(audioLink) {
+                audioSection.classList.remove('hidden');
+                // The viewer replaces the standard drive link with a direct stream link
+                const streamLink = audioLink.replace(/\/view.*$/, '/preview'); 
+                document.getElementById('t2-audio-player').src = streamLink;
+                document.getElementById('t2-audio-download').href = audioLink;
+            } else {
+                audioSection.classList.add('hidden');
+                document.getElementById('t2-audio-player').src = "";
+                document.getElementById('t2-audio-download').href = "#";
+            }
 
             document.getElementById('t2-tbody').innerHTML = attendees.map((r, i) => `
                 <tr class="border-b border-gray-100 dark:border-slate-700">
