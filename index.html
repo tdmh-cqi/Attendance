@@ -5,8 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meeting Attendance System - TDMH</title>
     
+    <!-- TDMH Favicon -->
+    <link rel="icon" href="images%20logo/td-logo.png" type="image/png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- SheetJS for Excel Export -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <!-- Chart.js for Visual Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -166,6 +173,17 @@
         TDMH-CQI-F-001-1-0
     </div>
 
+    <!-- Offline Banner -->
+    <div id="offline-banner" class="fixed top-0 left-0 w-full bg-orange-600 text-white text-center py-1.5 text-[10px] md:text-xs font-bold uppercase tracking-widest z-[100] hidden no-print shadow-md">
+        ⚠️ Working Offline - Signatures will sync automatically when Wi-Fi returns
+    </div>
+
+    <!-- Kiosk Screensaver -->
+    <div id="kiosk-screensaver" class="fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center hidden opacity-0 transition-opacity duration-1000 cursor-pointer no-print">
+        <img src="images%20logo/tdmh-logo.png" alt="TDMH Logo" class="h-24 md:h-32 object-contain opacity-50 animate-pulse mb-8">
+        <p class="text-gray-500 font-semibold tracking-widest uppercase text-sm animate-bounce">Tap anywhere to wake</p>
+    </div>
+
     <!-- Smooth Theme Transition Overlay with Branded Text -->
     <div id="theme-overlay" class="theme-overlay no-print flex items-center justify-center">
         <div id="theme-overlay-text-bg" class="px-8 py-5 rounded-[2rem] transition-all duration-300 flex items-center justify-center">
@@ -307,9 +325,15 @@
                         <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                             <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Live Feed
                         </h3>
-                        <div class="bg-tdmh-blue text-white px-4 py-2 rounded-lg shadow-sm">
-                            <span class="text-xs font-semibold uppercase tracking-widest opacity-80">Headcount</span>
-                            <div class="text-2xl font-black leading-none" id="live-headcount">0</div>
+                        <div class="flex gap-3">
+                            <div class="bg-gray-800 text-white px-4 py-2 rounded-lg shadow-sm hidden md:block">
+                                <span class="text-[10px] font-semibold uppercase tracking-widest opacity-60">Elapsed Time</span>
+                                <div class="text-xl font-black leading-none tabular-nums" id="meeting-stopwatch">00:00:00</div>
+                            </div>
+                            <div class="bg-tdmh-blue text-white px-4 py-2 rounded-lg shadow-sm">
+                                <span class="text-[10px] font-semibold uppercase tracking-widest opacity-80">Headcount</span>
+                                <div class="text-xl font-black leading-none text-center" id="live-headcount">0</div>
+                            </div>
                         </div>
                     </div>
                     
@@ -400,8 +424,8 @@
                 
                 <form id="login-form" class="space-y-5 w-full">
                     <div id="login-user-container" class="w-full">
-                        <label class="block text-sm font-bold mb-1.5 text-center w-full">Username</label>
-                        <input type="text" id="login-user" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl outline-none text-center">
+                        <label class="block text-sm font-bold mb-1.5 text-center w-full">Email Address</label>
+                        <input type="email" id="login-user" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl outline-none text-center" placeholder="name@tdmh.com">
                     </div>
                     
                     <div id="login-dept-container" class="w-full hidden">
@@ -441,7 +465,7 @@
                     <button id="btn-start-meeting" class="bg-tdmh-blue border border-transparent text-white px-5 py-3 rounded-xl shadow-sm hover:bg-blue-800 transition-all text-sm font-bold flex items-center justify-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> New Meeting
                     </button>
-                    <button onclick="fetchDashboardData()" class="bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 text-tdmh-blue dark:text-blue-300 px-5 py-3 rounded-xl shadow-sm text-sm font-bold flex items-center justify-center gap-2">
+                    <button onclick="fetchDashboardData(true)" class="bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 text-tdmh-blue dark:text-blue-300 px-5 py-3 rounded-xl shadow-sm text-sm font-bold flex items-center justify-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> Refresh
                     </button>
                 </div>
@@ -451,6 +475,17 @@
                 <div id="tier1-loader" class="absolute inset-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center hidden">
                     <div class="loader loader-blue mb-4 !w-10 !h-10 !border-4"></div>
                     <p class="text-tdmh-blue dark:text-blue-400 font-bold animate-pulse">Syncing Database...</p>
+                </div>
+
+                <!-- Admin Only: Visual Analytics -->
+                <div id="admin-analytics-section" class="hidden w-full mb-10 pb-10 border-b-2 border-dashed border-gray-200 dark:border-slate-700">
+                    <h3 class="text-sm font-black text-tdmh-blue dark:text-blue-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg> 
+                        Attendance Overview
+                    </h3>
+                    <div class="w-full bg-white dark:bg-slate-800 p-4 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm relative" style="height: 250px;">
+                        <canvas id="attendance-chart"></canvas>
+                    </div>
                 </div>
 
                 <!-- Admin Only: Live Operations Today -->
@@ -478,9 +513,14 @@
                 <button onclick="switchView('view-dashboard-tier1')" class="text-sm font-bold text-gray-600 dark:text-gray-300 flex items-center gap-1 hover:text-tdmh-blue">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> Back to Folders
                 </button>
-                <button onclick="window.print()" class="bg-tdmh-blue text-white px-5 py-2 rounded-lg font-bold text-sm shadow-md hover:bg-blue-800 flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg> Print Official Record
-                </button>
+                <div class="flex gap-2">
+                    <button onclick="exportToExcel()" class="bg-green-600 text-white px-5 py-2 rounded-lg font-bold text-sm shadow-md hover:bg-green-700 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg> Export Excel
+                    </button>
+                    <button onclick="window.print()" class="bg-tdmh-blue text-white px-5 py-2 rounded-lg font-bold text-sm shadow-md hover:bg-blue-800 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg> Print PDF
+                    </button>
+                </div>
             </div>
 
             <!-- Printable Document Header -->
@@ -496,6 +536,25 @@
                     <div><span class="font-bold uppercase text-gray-500 text-xs">Venue:</span> <span id="t2-ven" class="block"></span></div>
                     <div><span class="font-bold uppercase text-gray-500 text-xs">Moderator:</span> <span id="t2-mod" class="block"></span></div>
                     <div class="col-span-2"><span class="font-bold uppercase text-gray-500 text-xs">Hosting Entity:</span> <span id="t2-host" class="block font-bold text-tdmh-blue dark:text-blue-400"></span></div>
+                </div>
+
+                <!-- In-App Audio Player Section (Hidden until linked) -->
+                <div id="t2-audio-section" class="mb-8 hidden no-print">
+                    <div class="bg-tdmh-light/40 dark:bg-slate-800 rounded-2xl p-4 md:p-6 border border-tdmh-blue/20 dark:border-slate-600 flex flex-col md:flex-row items-center gap-5 shadow-sm">
+                        <div class="w-14 h-14 rounded-full bg-tdmh-blue text-white flex items-center justify-center shrink-0 shadow-inner">
+                            <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20"><path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.28l8-1.6V11.114A4.369 4.369 0 0015 11c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"></path></svg>
+                        </div>
+                        <div class="flex-1 w-full text-center md:text-left">
+                            <h4 class="font-bold text-gray-900 dark:text-white text-lg">Meeting Audio Recording</h4>
+                            <p class="text-xs font-semibold uppercase tracking-widest text-tdmh-accent dark:text-blue-400 mb-3">Synced Securely</p>
+                            <audio id="t2-audio-player" controls class="w-full h-10 rounded-lg outline-none"></audio>
+                        </div>
+                        <div class="flex-shrink-0 w-full md:w-auto">
+                            <a id="t2-audio-download" href="#" target="_blank" class="w-full md:w-auto px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-bold rounded-xl shadow-md hover:scale-105 transition-transform flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg> Download
+                            </a>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="font-bold mb-2 uppercase text-gray-800 dark:text-white flex justify-between items-end border-b border-gray-300 pb-2">
@@ -562,10 +621,50 @@
         let systemTemplates = [];
         let systemDepts = [];
         let liveFeedInterval = null;
+        let stopwatchInterval = null;
+        let meetingStartTime = null;
+        let localAttendanceList = []; // Array for duplicate check
         let activeMeetingState = null;
+        let idleTimeout = null; // Screensaver tracker
+        let attendanceChart = null; // Chart variable
         
         const views = ['view-setup', 'view-qrcode', 'view-attendance', 'view-login', 'view-dashboard-tier1', 'view-dashboard-tier2'].map(id => document.getElementById(id));
         const htmlEl = document.documentElement;
+
+        // ==================== OFFLINE SAFETY NET (INDEXEDDB) ====================
+        let offlineDB;
+        const dbRequest = indexedDB.open("TDMH_OfflineDB", 1);
+        dbRequest.onupgradeneeded = (e) => {
+            offlineDB = e.target.result;
+            if (!offlineDB.objectStoreNames.contains("attendanceQueue")) {
+                offlineDB.createObjectStore("attendanceQueue", { keyPath: "id", autoIncrement: true });
+            }
+        };
+        dbRequest.onsuccess = (e) => { offlineDB = e.target.result; if(navigator.onLine) syncOfflineData(); };
+
+        async function syncOfflineData() {
+            if(!offlineDB) return;
+            const tx = offlineDB.transaction("attendanceQueue", "readonly");
+            const req = tx.objectStore("attendanceQueue").getAll();
+            req.onsuccess = async () => {
+                const records = req.result;
+                if(records.length > 0) {
+                    showNotification(`Syncing ${records.length} offline records...`, "info");
+                    for (const record of records) {
+                        try {
+                            await fetch(APPS_SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(record.payload) });
+                            const deleteTx = offlineDB.transaction("attendanceQueue", "readwrite");
+                            deleteTx.objectStore("attendanceQueue").delete(record.id);
+                        } catch(e) { console.error("Sync failed for record", record.id); }
+                    }
+                    showNotification("All offline records synced successfully!", "success");
+                }
+            };
+        }
+
+        window.addEventListener('offline', () => document.getElementById('offline-banner').classList.remove('hidden'));
+        window.addEventListener('online', () => { document.getElementById('offline-banner').classList.add('hidden'); syncOfflineData(); });
+        // ========================================================================
 
         function applyTheme(isDark) {
             isDark ? htmlEl.classList.add('dark') : htmlEl.classList.remove('dark');
@@ -728,6 +827,29 @@
         }
         initApp();
 
+        // --- Screensaver Logic ---
+        const screensaverEl = document.getElementById('kiosk-screensaver');
+        function wakeUpKiosk() {
+            if (!screensaverEl.classList.contains('hidden')) {
+                screensaverEl.classList.add('opacity-0');
+                setTimeout(() => screensaverEl.classList.add('hidden'), 500);
+            }
+        }
+        function resetIdleTimer() {
+            clearTimeout(idleTimeout);
+            wakeUpKiosk();
+            // Only start the idle timer if a meeting is actively running
+            if (activeMeetingState) {
+                idleTimeout = setTimeout(() => {
+                    screensaverEl.classList.remove('hidden');
+                    setTimeout(() => screensaverEl.classList.remove('opacity-0'), 50);
+                }, 180000); // 180000ms = 3 Minutes
+            }
+        }
+        // Listen for any interaction to reset the timer
+        ['touchstart', 'mousemove', 'mousedown', 'keydown'].forEach(evt => document.addEventListener(evt, resetIdleTimer));
+        // -------------------------
+
         setInterval(() => {
             const now = new Date();
             document.getElementById('live-time').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -828,6 +950,8 @@
 
         document.getElementById('btn-end-meeting').addEventListener('click', () => {
             activeMeetingState = null;
+            meetingStartTime = null;
+            localAttendanceList = []; // Clear duplicate tracker
             localStorage.removeItem('tdmh_active_meeting');
             document.getElementById('btn-resume-meeting').classList.add('hidden');
             document.getElementById('setup-form').reset();
@@ -854,6 +978,15 @@
             
             const today = new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
             
+            if (!meetingStartTime) meetingStartTime = Date.now();
+            stopwatchInterval = setInterval(() => {
+                const diff = Date.now() - meetingStartTime;
+                const hrs = Math.floor(diff / 3600000).toString().padStart(2, '0');
+                const mins = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
+                const secs = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+                document.getElementById('meeting-stopwatch').innerText = `${hrs}:${mins}:${secs}`;
+            }, 1000);
+
             liveFeedInterval = setInterval(async () => {
                 try {
                     const url = `${APPS_SCRIPT_URL}?action=getLiveFeed&s=${encodeURIComponent(sub)}&v=${encodeURIComponent(ven)}&m=${encodeURIComponent(mod)}&date=${encodeURIComponent(today)}`;
@@ -874,11 +1007,12 @@
                         listEl.scrollTop = listEl.scrollHeight;
                     }
                 } catch(e) {} // Silently ignore feed network blocks
-            }, 5000); 
+            }, 15000); // 15-second Smart Polling
         }
 
         function stopLiveFeed() {
             if(liveFeedInterval) clearInterval(liveFeedInterval);
+            if(stopwatchInterval) clearInterval(stopwatchInterval);
         }
 
         const canvas = document.getElementById('signature-pad');
@@ -916,7 +1050,12 @@
             e.preventDefault();
             if (!hasSigned) { showNotification("Signature required.", "error"); return; }
 
-            const name = document.getElementById('participant-name').value;
+            const name = document.getElementById('participant-name').value.trim();
+            
+            if (localAttendanceList.includes(name.toLowerCase())) {
+                showNotification("You are already recorded for this meeting!", "error");
+                return;
+            }
             const dept = document.getElementById('participant-department').value;
             const email = document.getElementById('participant-email').value;
             const remember = document.getElementById('remember-me').checked;
@@ -936,14 +1075,29 @@
 
             btn.disabled = true; btn.innerHTML = `<div class="loader mr-2"></div> Submitting...`;
 
-            try {
-                await fetch(APPS_SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
-                document.getElementById('success-msg-name').innerHTML = `<strong class="text-tdmh-blue dark:text-blue-400 font-black">${name}</strong>`;
+            async function triggerSuccessUI(isOffline) {
+                localAttendanceList.push(name.toLowerCase()); 
+                document.getElementById('success-msg-name').innerHTML = `<strong class="text-tdmh-blue dark:text-blue-400 font-black">${name}</strong><br><span class="text-xs text-gray-500 font-bold uppercase mt-2 block">${isOffline ? 'Saved to Offline Vault' : 'Securely Synced'}</span>`;
                 document.getElementById('success-modal').classList.remove('hidden');
                 document.getElementById('attendance-form').reset();
                 if(remember) { document.getElementById('participant-name').value = name; document.getElementById('participant-department').value = dept; document.getElementById('remember-me').checked = true; }
                 document.getElementById('btn-clear-sig').click();
-            } catch (error) { showNotification("Submission failed.", "error"); } 
+            }
+
+            try {
+                if (!navigator.onLine) throw new Error("Offline"); // Force catch block if no Wi-Fi
+                await fetch(APPS_SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+                await triggerSuccessUI(false);
+            } catch (error) { 
+                if (offlineDB) {
+                    const tx = offlineDB.transaction("attendanceQueue", "readwrite");
+                    tx.objectStore("attendanceQueue").add({ payload: payload, timestamp: Date.now() });
+                    await triggerSuccessUI(true);
+                    showNotification("Saved securely offline.", "info");
+                } else {
+                    showNotification("Submission failed. Offline storage unavailable.", "error"); 
+                }
+            } 
             finally { btn.disabled = false; btn.innerHTML = `Submit Secure Attendance`; }
         });
 
@@ -1074,13 +1228,23 @@
             fetchDashboardData();
         }
 
-        async function fetchDashboardData() {
+        async function fetchDashboardData(forceRefresh = false) {
             if(!userRole) return;
             
             // Do not clear the dummy data if we used TEST mode
             if(cachedData.length > 0 && cachedData[0].venue === "Preview Room") {
                 renderFolders();
                 return;
+            }
+
+            // SESSION CACHE: Load instantly if available and not forced to refresh
+            if (!forceRefresh) {
+                const sessionCache = sessionStorage.getItem('tdmh_dashboard_cache');
+                if (sessionCache) {
+                    cachedData = JSON.parse(sessionCache);
+                    renderFolders();
+                    return;
+                }
             }
 
             document.getElementById('meeting-folders-container').innerHTML = ''; 
@@ -1095,6 +1259,9 @@
                         if (typeof dTime === 'string' && dTime.includes('T')) { const pt = new Date(dTime); if (!isNaN(pt)) dTime = pt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); }
                         return { date: dDate, time: dTime, subject: r[2], venue: r[3], moderator: r[4], name: r[5], dept: r[6], email: r[7], host: r[8], sig: r[9] };
                     }).reverse();
+                    
+                    // Save to browser temporary memory
+                    sessionStorage.setItem('tdmh_dashboard_cache', JSON.stringify(cachedData));
                     renderFolders();
                 }
             } catch (error) {} 
@@ -1165,9 +1332,48 @@
             
             if (userRole === 'Admin') {
                 activeContainer.innerHTML = activeHTML || `<div class="col-span-3 p-6 text-center text-gray-400 italic bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-gray-200 dark:border-slate-700">No active operations detected today.</div>`;
+                
+                // Show and update Chart
+                document.getElementById('admin-analytics-section').classList.remove('hidden');
+                updateAnalyticsChart(meetings);
+            } else {
+                document.getElementById('admin-analytics-section').classList.add('hidden');
             }
 
             container.innerHTML = archiveHTML || `<div class="col-span-3 p-12 text-center text-gray-500 font-semibold border-2 border-dashed border-gray-200 rounded-2xl">No historical records found.</div>`;
+        }
+
+        function updateAnalyticsChart(meetingsObj) {
+            const ctx = document.getElementById('attendance-chart').getContext('2d');
+            const deptCounts = {};
+            
+            // Tally all attendees currently visible on the dashboard
+            Object.values(meetingsObj).flat().forEach(row => {
+                const d = row.dept || 'Unknown';
+                deptCounts[d] = (deptCounts[d] || 0) + 1;
+            });
+
+            const labels = Object.keys(deptCounts);
+            const data = Object.values(deptCounts);
+
+            if (attendanceChart) {
+                attendanceChart.data.labels = labels;
+                attendanceChart.data.datasets[0].data = data;
+                attendanceChart.update();
+            } else {
+                attendanceChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{ label: 'Total Attendees', data: data, backgroundColor: '#2563eb', borderRadius: 4 }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                    }
+                });
+            }
         }
 
         window.openMeetingTier2 = function(encodedKey) {
@@ -1202,6 +1408,47 @@
         window.viewSigOnly = function(imgSrc) {
             document.getElementById('modal-sig-image').src = imgSrc;
             document.getElementById('signature-modal').classList.remove('hidden');
+        }
+
+        window.exportToExcel = function() {
+            const subject = document.getElementById('t2-sub').innerText;
+            const date = document.getElementById('t2-date').innerText;
+            const venue = document.getElementById('t2-ven').innerText;
+            const host = document.getElementById('t2-host').innerText;
+            const mod = document.getElementById('t2-mod').innerText;
+            
+            let exportData = [
+                ["Taytay Doctors Multispecialty Hospital"],
+                ["OFFICIAL ATTENDANCE RECORD"],
+                [],
+                ["Subject:", subject, "", "Date:", date],
+                ["Venue:", venue, "", "Moderator:", mod],
+                ["Hosting Entity:", host],
+                [],
+                ["#", "Participant Name", "Email", "Department", "Time Signed"]
+            ];
+            
+            const rows = document.querySelectorAll('#t2-tbody tr');
+            rows.forEach((row, index) => {
+                const nameDiv = row.querySelector('td:nth-child(2) .font-bold');
+                const subDiv = row.querySelector('td:nth-child(2) .text-\\[10px\\]');
+                const dept = row.querySelector('td:nth-child(3)').innerText;
+                
+                const name = nameDiv ? nameDiv.innerText : '';
+                const subText = subDiv ? subDiv.innerText : '';
+                const parts = subText.split(' • ');
+                const email = parts[0] ? parts[0].trim() : '';
+                const time = parts[1] ? parts[1].trim() : '';
+                
+                exportData.push([index + 1, name, email !== 'N/A' ? email : '', dept, time]);
+            });
+            
+            const ws = XLSX.utils.aoa_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Attendance");
+            
+            const filename = `TDMH_Attendance_${subject.replace(/[^a-z0-9]/gi, '_')}_${date.replace(/\//g, '-')}.xlsx`;
+            XLSX.writeFile(wb, filename);
         }
     </script>
 </body>
