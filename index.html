@@ -212,13 +212,8 @@
                 <span class="w-2 h-2 rounded-full bg-red-600 dark:bg-red-400"></span> <span class="hidden md:inline">Active</span> Meeting
             </button>
 
-            <div id="nav-login-group" class="flex gap-2">
-                <button id="btn-nav-dept" class="px-3 md:px-5 py-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-tdmh-blue dark:text-blue-400 rounded-lg shadow-sm hover:shadow-md transition-all text-xs md:text-sm font-bold tracking-wide">
-                    Dept Login
-                </button>
-                <button id="btn-nav-admin" class="px-3 md:px-5 py-2 bg-tdmh-blue dark:bg-blue-600 border border-transparent text-white rounded-lg shadow-sm hover:bg-blue-800 dark:hover:bg-blue-500 transition-all text-xs md:text-sm font-bold tracking-wide">
-                    Admin Login
-                </button>
+            <div id="nav-login-group" class="flex gap-2 hidden">
+                <!-- Buttons removed for Bank Vault strictness -->
             </div>
             <div id="nav-logged-in-group" class="flex gap-2 hidden">
                 <button id="nav-dashboard-btn" class="px-3 md:px-5 py-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-tdmh-blue dark:text-blue-400 rounded-lg shadow-sm hover:shadow-md transition-all text-xs md:text-sm font-bold tracking-wide">
@@ -423,20 +418,13 @@
                 <div class="w-16 h-16 bg-tdmh-light dark:bg-slate-700 rounded-full flex items-center justify-center mb-4 text-tdmh-blue dark:text-blue-400">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                 </div>
-                <h2 id="login-title" class="text-2xl font-black text-gray-900 dark:text-white mb-1">Dept Head Portal</h2>
+                <h2 id="login-title" class="text-2xl font-black text-gray-900 dark:text-white mb-1">System Portal</h2>
                 <p class="text-sm text-gray-500 mb-8 font-medium">Authorized personnel only.</p>
                 
                 <form id="login-form" class="space-y-5 w-full">
-                    <div id="login-user-container" class="w-full hidden">
-                        <label class="block text-sm font-bold mb-1.5 text-center w-full">Username or Email</label>
-                        <input type="text" id="login-user" class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl outline-none text-center" placeholder="e.g., CQI or name@tdmh.com">
-                    </div>
-                    
-                    <div id="login-dept-container" class="w-full">
-                        <label class="block text-sm font-bold mb-1.5 text-center w-full">Department</label>
-                        <select id="login-dept" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl outline-none text-center appearance-none">
-                            <option value="" disabled selected>Select your Department...</option>
-                        </select>
+                    <div id="login-user-container" class="w-full">
+                        <label class="block text-sm font-bold mb-1.5 text-center w-full">Username, Email, or Dept</label>
+                        <input type="text" id="login-user" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl outline-none text-center" placeholder="e.g., CQI, HR, or name@tdmh.com">
                     </div>
 
                     <div>
@@ -1177,28 +1165,7 @@
             finally { btn.disabled = false; btn.innerHTML = `Submit Secure Attendance`; }
         });
 
-        const loginTitle = document.getElementById('login-title');
-        let loginMode = 'admin';
-        
-        document.getElementById('btn-nav-admin').addEventListener('click', () => { 
-            loginMode = 'admin';
-            loginTitle.innerText = "Admin Portal"; 
-            document.getElementById('login-user-container').classList.remove('hidden');
-            document.getElementById('login-user').required = true;
-            document.getElementById('login-dept-container').classList.add('hidden');
-            document.getElementById('login-dept').required = false;
-            switchView('view-login'); 
-        });
-        
-        document.getElementById('btn-nav-dept').addEventListener('click', () => { 
-            loginMode = 'dept';
-            loginTitle.innerText = "Dept Head Portal"; 
-            document.getElementById('login-dept-container').classList.remove('hidden');
-            document.getElementById('login-dept').required = true;
-            document.getElementById('login-user-container').classList.add('hidden');
-            document.getElementById('login-user').required = false;
-            switchView('view-login'); 
-        });
+        // Universal Login UI setup removed for pure Bank Vault architecture
         
         document.getElementById('btn-cancel-login').addEventListener('click', () => {
             if(activeMeetingState) {
@@ -1255,7 +1222,7 @@
             e.preventDefault();
             const btn = document.getElementById('btn-login-submit'); btn.innerHTML = `<div class="loader mx-auto"></div>`; btn.disabled = true;
             
-            const u = loginMode === 'admin' ? document.getElementById('login-user').value : document.getElementById('login-dept').value;
+            const u = document.getElementById('login-user').value.trim();
             const p = document.getElementById('login-pass').value;
 
             // SECRET TEST MODE: Allows you to bypass network errors in the preview window!
