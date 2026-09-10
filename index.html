@@ -243,7 +243,7 @@
         </div>
 
         <!-- ==================== PUBLIC SETUP VIEW ==================== -->
-        <div id="view-setup" class="p-8 md:p-12 transition-opacity">
+        <div id="view-setup" class="hidden p-8 md:p-12 transition-opacity">
             <div class="text-center mb-10 max-w-lg mx-auto flex flex-col items-center justify-center w-full">
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Meeting Configuration</h2>
                 <p class="text-sm md:text-base text-gray-500 dark:text-gray-400 mt-2">Set up a new attendance session.</p>
@@ -418,23 +418,23 @@
         </div>
 
         <!-- ==================== LOGIN VIEW ==================== -->
-        <div id="view-login" class="hidden p-8 md:p-16 flex flex-col items-center justify-center min-h-[500px]">
+        <div id="view-login" class="p-8 md:p-16 flex flex-col items-center justify-center min-h-[500px]">
             <div class="w-full max-w-sm mx-auto bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col items-center">
                 <div class="w-16 h-16 bg-tdmh-light dark:bg-slate-700 rounded-full flex items-center justify-center mb-4 text-tdmh-blue dark:text-blue-400">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                 </div>
-                <h2 id="login-title" class="text-2xl font-black text-gray-900 dark:text-white mb-1">Portal</h2>
+                <h2 id="login-title" class="text-2xl font-black text-gray-900 dark:text-white mb-1">Dept Head Portal</h2>
                 <p class="text-sm text-gray-500 mb-8 font-medium">Authorized personnel only.</p>
                 
                 <form id="login-form" class="space-y-5 w-full">
-                    <div id="login-user-container" class="w-full">
+                    <div id="login-user-container" class="w-full hidden">
                         <label class="block text-sm font-bold mb-1.5 text-center w-full">Username or Email</label>
-                        <input type="text" id="login-user" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl outline-none text-center" placeholder="e.g., CQI or name@tdmh.com">
+                        <input type="text" id="login-user" class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl outline-none text-center" placeholder="e.g., CQI or name@tdmh.com">
                     </div>
                     
-                    <div id="login-dept-container" class="w-full hidden">
+                    <div id="login-dept-container" class="w-full">
                         <label class="block text-sm font-bold mb-1.5 text-center w-full">Department</label>
-                        <select id="login-dept" class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl outline-none text-center appearance-none">
+                        <select id="login-dept" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl outline-none text-center appearance-none">
                             <option value="" disabled selected>Select your Department...</option>
                         </select>
                     </div>
@@ -447,7 +447,7 @@
                         Sign In Securely
                     </button>
                 </form>
-                <button id="btn-cancel-login" class="text-sm text-gray-500 hover:text-gray-700 mt-6 font-semibold py-2">Cancel / Return</button>
+                <button id="btn-cancel-login" class="hidden text-sm text-gray-500 hover:text-gray-700 mt-6 font-semibold py-2">Cancel / Return</button>
             </div>
         </div>
 
@@ -824,10 +824,10 @@
                     setupTier1Dashboard();
                     switchView('view-dashboard-tier1');
                 } else {
-                    // ENTERPRISE LOCK: Force Login Screen by default
-                    document.getElementById('btn-nav-dept').click(); 
-                    document.getElementById('btn-cancel-login').classList.add('hidden');
-                    document.getElementById('nav-login-group').classList.add('hidden'); // Hide top nav logins
+                    // ENTERPRISE LOCK: The HTML naturally loads the Login screen now.
+                    // Keep the top nav visible so they can switch to Admin Login.
+                    document.getElementById('nav-login-group').classList.remove('hidden');
+                    loginMode = 'dept'; // Sync the JS state with the HTML
                 }
                 
                 // Smart Function: Restore Active Meeting visually if they refreshed
