@@ -1162,15 +1162,6 @@
 
         // Universal Login UI setup removed for pure Bank Vault architecture
         
-        document.getElementById('btn-cancel-login').addEventListener('click', () => {
-            if(activeMeetingState) {
-                switchView('view-qrcode');
-                startLiveFeed(activeMeetingState.s, activeMeetingState.v, activeMeetingState.m);
-            } else {
-                switchView('view-setup');
-            }
-        });
-        
         document.getElementById('nav-logout-btn').addEventListener('click', () => {
             userRole = null; 
             localStorage.removeItem('tdmh_role'); // Clear persistent session
