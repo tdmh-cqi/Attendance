@@ -1102,7 +1102,6 @@
         canvas.addEventListener('touchstart', startDrawing, { passive: false }); canvas.addEventListener('touchmove', draw, { passive: false });
         canvas.addEventListener('touchend', stopDrawing);
         document.getElementById('btn-clear-sig').addEventListener('click', () => { ctx.clearRect(0, 0, canvas.width, canvas.height); hasSigned = false; savedSigData = null; });
-        document.getElementById('btn-next-person').addEventListener('click', () => document.getElementById('success-modal').classList.add('hidden'));
         document.getElementById('btn-close-sig').addEventListener('click', () => document.getElementById('signature-modal').classList.add('hidden'));
 
         document.getElementById('attendance-form').addEventListener('submit', async (e) => {
