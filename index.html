@@ -431,8 +431,9 @@
                         <label class="block text-sm font-bold mb-1.5 text-center w-full">Password</label>
                         <input type="password" id="login-pass" required class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl outline-none text-center tracking-widest">
                     </div>
+                    
                     <button type="submit" id="btn-login-submit" class="w-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 p-4 rounded-xl font-bold shadow-lg transition-all active:scale-[0.98]">
-                        Sign In Securely
+                        Sign In
                     </button>
                 </form>
                 <button id="btn-cancel-login" class="hidden text-sm text-gray-500 hover:text-gray-700 mt-6 font-semibold py-2">Cancel / Return</button>
@@ -759,10 +760,6 @@
             systemDepts.forEach(d => hostSelect.innerHTML += `<option value="${d}">${d}</option>`);
             hostSelect.innerHTML += `<option value="OTHER_GUEST" class="font-bold text-orange-600">Other / External Guest (Specify)</option>`;
             
-            const loginDeptSelect = document.getElementById('login-dept');
-            loginDeptSelect.innerHTML = '<option value="" disabled selected>Select your Department...</option>';
-            systemDepts.forEach(d => loginDeptSelect.innerHTML += `<option value="${d}">${d}</option>`);
-
             const tempSelect = document.getElementById('setup-template');
             tempSelect.innerHTML = '<option value="">-- Custom Meeting --</option>';
             systemTemplates.forEach((t, i) => tempSelect.innerHTML += `<option value="${i}">${t[0]}</option>`);
@@ -813,9 +810,7 @@
                     switchView('view-dashboard-tier1');
                 } else {
                     // ENTERPRISE LOCK: The HTML naturally loads the Login screen now.
-                    // Keep the top nav visible so they can switch to Admin Login.
-                    document.getElementById('nav-login-group').classList.remove('hidden');
-                    loginMode = 'dept'; // Sync the JS state with the HTML
+                    document.getElementById('nav-login-group').classList.add('hidden');
                 }
                 
                 // Smart Function: Restore Active Meeting visually if they refreshed
