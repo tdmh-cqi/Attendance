@@ -178,11 +178,7 @@
         ⚠️ Working Offline - Signatures will sync automatically when Wi-Fi returns
     </div>
 
-    <!-- Kiosk Screensaver -->
-    <div id="kiosk-screensaver" class="fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center hidden opacity-0 transition-opacity duration-1000 cursor-pointer no-print">
-        <img src="images%20logo/tdmh-logo.png" alt="TDMH Logo" class="h-24 md:h-32 object-contain opacity-50 animate-pulse mb-8">
-        <p class="text-gray-500 font-semibold tracking-widest uppercase text-sm animate-bounce">Tap anywhere to wake</p>
-    </div>
+    <!-- Kiosk Screensaver Removed for Optimization -->
 
     <!-- Smooth Theme Transition Overlay with Branded Text -->
     <div id="theme-overlay" class="theme-overlay no-print flex items-center justify-center">
@@ -279,7 +275,15 @@
                     </div>
                 </div>
                 
-                <div class="pt-6 w-full flex justify-center">
+                <div class="flex items-start gap-3 mt-4 mb-2 bg-blue-50 dark:bg-slate-700/50 p-4 rounded-xl border border-blue-100 dark:border-slate-600">
+                    <input type="checkbox" id="save-as-template" class="mt-0.5 w-4 h-4 text-tdmh-accent rounded border-gray-300 cursor-pointer">
+                    <div>
+                        <label for="save-as-template" class="text-sm font-bold text-tdmh-blue dark:text-blue-300 cursor-pointer select-none">Save as a new reusable template</label>
+                        <p class="text-[10px] text-gray-500 dark:text-gray-400 leading-relaxed">This will save your Subject, Venue, and Host for future use.</p>
+                    </div>
+                </div>
+
+                <div class="pt-2 w-full flex justify-center">
                     <button type="submit" class="w-full md:w-auto md:px-12 bg-tdmh-blue hover:bg-blue-800 text-white p-4 rounded-xl font-bold text-lg shadow-lg shadow-blue-900/20 transition-all active:scale-[0.98]">
                         Generate QR & Start Attendance
                     </button>
@@ -300,8 +304,11 @@
                     </div>
                     
                     <div class="w-full max-w-sm flex flex-col gap-3">
-                        <button id="btn-proceed-signin" class="w-full bg-green-600 hover:bg-green-700 text-white p-3 rounded-xl font-bold text-sm shadow-lg shadow-green-900/20 transition-all active:scale-[0.98]">
-                            Open Shared Form Here
+                        <button id="btn-proceed-signin" class="w-full bg-tdmh-blue hover:bg-blue-800 text-white p-3 rounded-xl font-bold text-sm shadow-lg shadow-blue-900/20 transition-all active:scale-[0.98]">
+                            Open Shared Form
+                        </button>
+                        <button id="btn-new-tab-signin" class="w-full bg-green-600 hover:bg-green-700 text-white p-3 rounded-xl font-bold text-sm shadow-lg shadow-green-900/20 transition-all active:scale-[0.98]">
+                            Open Shared Form in New Tab
                         </button>
                         <div class="flex gap-3">
                             <button id="btn-edit-meeting" class="w-1/2 text-sm text-gray-600 dark:text-gray-300 font-semibold py-2.5 rounded-xl bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 transition">
@@ -600,7 +607,7 @@
             <p class="text-gray-600 dark:text-gray-300 mb-6 font-medium" id="success-msg-name"></p>
             <div class="bg-blue-50 dark:bg-slate-700/50 p-4 rounded-xl border border-blue-100 dark:border-slate-600">
                 <p class="text-xs font-black text-tdmh-blue dark:text-blue-400 uppercase tracking-widest leading-relaxed">Thank you for your participation.</p>
-                <p class="text-sm font-bold text-gray-800 dark:text-gray-200 mt-1">You may now close this browser tab.</p>
+                <p id="success-action-text" class="text-sm font-bold text-gray-800 dark:text-gray-200 mt-1">You may now close this browser tab.</p>
             </div>
         </div>
     </div>
@@ -818,33 +825,18 @@
                 if(savedMeeting) {
                     activeMeetingState = savedMeeting;
                     document.getElementById('btn-resume-meeting').classList.remove('hidden');
+                    
+                    // AUTO-RECOVER DIRECTLY TO QR SCREEN!
+                    generateQROnScreen(activeMeetingState.s, activeMeetingState.v, activeMeetingState.m, activeMeetingState.h);
+                    switchView('view-qrcode');
+                    startLiveFeed(activeMeetingState.s, activeMeetingState.v, activeMeetingState.m);
+                    showNotification("Active Meeting Recovered Successfully", "success");
                 }
             }
         }
         initApp();
 
-        // --- Screensaver Logic ---
-        const screensaverEl = document.getElementById('kiosk-screensaver');
-        function wakeUpKiosk() {
-            if (!screensaverEl.classList.contains('hidden')) {
-                screensaverEl.classList.add('opacity-0');
-                setTimeout(() => screensaverEl.classList.add('hidden'), 500);
-            }
-        }
-        function resetIdleTimer() {
-            clearTimeout(idleTimeout);
-            wakeUpKiosk();
-            // Only start the idle timer if a meeting is actively running
-            if (activeMeetingState) {
-                idleTimeout = setTimeout(() => {
-                    screensaverEl.classList.remove('hidden');
-                    setTimeout(() => screensaverEl.classList.remove('opacity-0'), 50);
-                }, 180000); // 180000ms = 3 Minutes
-            }
-        }
-        // Listen for any interaction to reset the timer
-        ['touchstart', 'mousemove', 'mousedown', 'keydown'].forEach(evt => document.addEventListener(evt, resetIdleTimer));
-        // -------------------------
+        // --- Screensaver Logic Completely Removed for Maximum Performance ---
 
         setInterval(() => {
             const now = new Date();
@@ -929,6 +921,19 @@
             // Smart Function: Save to persistent memory and clear draft typing
             localStorage.setItem('tdmh_active_meeting', JSON.stringify(activeMeetingState));
             localStorage.removeItem('tdmh_setup_draft');
+
+            // Template Saving Logic
+            const saveTemplateBox = document.getElementById('save-as-template');
+            if (saveTemplateBox && saveTemplateBox.checked) {
+                const templateName = prompt("Enter a name for this new template (e.g., Monthly Meeting):", `${s} - Setup`);
+                if (templateName) {
+                    fetch(APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: "saveTemplate", templateName: templateName, subject: s, venue: v, moderator: m, hostEntity: h })
+                    });
+                    showNotification("New template securely saved!", "success");
+                }
+            }
             
             generateQROnScreen(s, v, m, h);
             document.getElementById('btn-resume-meeting').classList.remove('hidden');
@@ -938,13 +943,26 @@
             startLiveFeed(s, v, m);
         });
 
-        document.getElementById('btn-proceed-signin').addEventListener('click', () => switchView('view-attendance'));
-        
-        document.getElementById('btn-edit-meeting').addEventListener('click', () => {
-            switchView('view-setup');
+        let isSharedTabletMode = false;
+
+        document.getElementById('btn-proceed-signin').addEventListener('click', () => {
+            isSharedTabletMode = true; // Activates the 3-second auto-loop
+            switchView('view-attendance');
         });
 
-        document.getElementById('btn-end-meeting').addEventListener('click', () => {
+        document.getElementById('btn-new-tab-signin').addEventListener('click', () => {
+            // Opens form in a new tab to protect the QR screen
+            let baseUrl = window.location.href.split('?')[0];
+            if (baseUrl.startsWith('blob:')) baseUrl = 'https://tdmh-cqi.github.io/Attendance/';
+            const url = new URL(baseUrl);
+            url.searchParams.set('s', activeMeetingState.s); 
+            url.searchParams.set('v', activeMeetingState.v); 
+            url.searchParams.set('m', activeMeetingState.m); 
+            url.searchParams.set('h', activeMeetingState.h);
+            window.open(url.toString(), '_blank');
+        });
+        
+        document.getElementById('btn-edit-meeting').addEventListener('click', () => {
             activeMeetingState = null;
             meetingStartTime = null;
             localAttendanceList = []; // Clear duplicate tracker
@@ -1128,7 +1146,7 @@
                 moderator: document.getElementById('display-moderator').innerText,
                 hostEntity: document.getElementById('app-container').dataset.host || 'Unknown',
                 name: name, department: dept, email: email,
-                signature: canvas.toDataURL()
+                signature: canvas.toDataURL('image/webp', 0.5) // HIGHLY COMPRESSED
             };
 
             btn.disabled = true; btn.innerHTML = `<div class="loader mr-2"></div> Submitting...`;
@@ -1136,10 +1154,34 @@
             async function triggerSuccessUI(isOffline) {
                 localAttendanceList.push(name.toLowerCase()); 
                 document.getElementById('success-msg-name').innerHTML = `<strong class="text-tdmh-blue dark:text-blue-400 font-black">${name}</strong><br><span class="text-xs text-gray-500 font-bold uppercase mt-2 block">${isOffline ? 'Saved to Offline Vault' : 'Securely Synced'}</span>`;
+                
+                const actionText = document.getElementById('success-action-text');
                 document.getElementById('success-modal').classList.remove('hidden');
-                document.getElementById('attendance-form').reset();
-                if(remember) { document.getElementById('participant-name').value = name; document.getElementById('participant-department').value = dept; document.getElementById('remember-me').checked = true; }
-                document.getElementById('btn-clear-sig').click();
+
+                // If running on the host's passed-around tablet, do the 3-sec loop
+                if (typeof isSharedTabletMode !== 'undefined' && isSharedTabletMode) {
+                    let count = 3;
+                    actionText.innerHTML = `Next attendee in <span class="text-tdmh-blue text-lg font-black ml-1">${count}</span>...`;
+                    
+                    const loopInterval = setInterval(() => {
+                        count--;
+                        if (count > 0) {
+                            actionText.innerHTML = `Next attendee in <span class="text-tdmh-blue text-lg font-black ml-1">${count}</span>...`;
+                        } else {
+                            clearInterval(loopInterval);
+                            document.getElementById('success-modal').classList.add('hidden');
+                            document.getElementById('attendance-form').reset();
+                            document.getElementById('btn-clear-sig').click();
+                            actionText.innerHTML = `You may now close this browser tab.`; // Reset text
+                        }
+                    }, 1000);
+                } else {
+                    // Regular phone users get normal close prompt
+                    actionText.innerHTML = `You may now close this browser tab.`;
+                    document.getElementById('attendance-form').reset();
+                    if(remember) { document.getElementById('participant-name').value = name; document.getElementById('participant-department').value = dept; document.getElementById('remember-me').checked = true; }
+                    document.getElementById('btn-clear-sig').click();
+                }
             }
 
             try {
