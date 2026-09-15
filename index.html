@@ -1543,6 +1543,16 @@
             });
             
             const ws = XLSX.utils.aoa_to_sheet(exportData);
+            
+            // Force column widths to look perfectly spaced out like Screenshot (474)
+            ws['!cols'] = [
+                { wch: 5 },   // Column A: #
+                { wch: 30 },  // Column B: Participant Name
+                { wch: 35 },  // Column C: Email
+                { wch: 30 },  // Column D: Department/Date/Moderator
+                { wch: 20 }   // Column E: Time Signed
+            ];
+
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Attendance");
             
