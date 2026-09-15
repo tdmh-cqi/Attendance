@@ -774,7 +774,11 @@
 
         async function initApp() {
             try {
-                const res = await fetch(`${APPS_SCRIPT_URL}?action=getDropdowns`, { redirect: "follow" });
+                // Grab the role FIRST so the backend knows who is asking for templates!
+                const currentRole = localStorage.getItem('tdmh_role') || '';
+                const fetchUrl = currentRole ? `${APPS_SCRIPT_URL}?action=getDropdowns&role=${encodeURIComponent(currentRole)}` : `${APPS_SCRIPT_URL}?action=getDropdowns`;
+                
+                const res = await fetch(fetchUrl, { redirect: "follow" });
                 const data = await res.json();
                 if(data.success) {
                     systemDepts = data.departments;
