@@ -769,7 +769,13 @@
             
             const tempSelect = document.getElementById('setup-template');
             tempSelect.innerHTML = '<option value="">-- Custom Meeting --</option>';
-            systemTemplates.forEach((t, i) => tempSelect.innerHTML += `<option value="${i}">${t[0]}</option>`);
+            
+            // SMART FILTERING: Only add template if Admin, or if template belongs to logged-in user
+            systemTemplates.forEach((t, i) => {
+                if (userRole === 'Admin' || t[4] === userRole) {
+                    tempSelect.innerHTML += `<option value="${i}">${t[0]}</option>`;
+                }
+            });
         }
 
         async function initApp() {
@@ -1219,6 +1225,7 @@
         });
 
         document.getElementById('btn-start-meeting').addEventListener('click', () => {
+            populateDropdowns(); // Force a fresh filter based on the logged-in role
             document.getElementById('setup-form').reset();
             const hostSelect = document.getElementById('setup-host');
             
