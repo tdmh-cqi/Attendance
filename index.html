@@ -323,8 +323,10 @@
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                             <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Live Feed
-                        </h3>
-                        <div class="flex gap-3">
+                            <button onclick="if(activeMeetingState) startLiveFeed(activeMeetingState.s, activeMeetingState.v, activeMeetingState.m)" class="ml-2 text-gray-400 hover:text-tdmh-blue transition p-1 rounded-full bg-gray-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-slate-700" title="Refresh Feed">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                            </button>
+                        </h3>                        <div class="flex gap-3">
                             <div class="bg-gray-800 text-white px-4 py-2 rounded-lg shadow-sm hidden md:block">
                                 <span class="text-[10px] font-semibold uppercase tracking-widest opacity-60">Elapsed Time</span>
                                 <div class="text-xl font-black leading-none tabular-nums" id="meeting-stopwatch">00:00:00</div>
@@ -547,8 +549,30 @@
     </div>
 
     <!-- Modals & Toasts -->
-    <div id="signature-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center hidden z-[60] no-print">
-        <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-2xl max-w-md w-full mx-4 border border-gray-100">
+    <div id="host-password-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center hidden z-[80] no-print">
+        <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-2xl max-w-sm w-full mx-4 border border-gray-100 dark:border-slate-700 transform scale-95 transition-transform duration-300">
+            <div class="w-12 h-12 bg-tdmh-light dark:bg-slate-700 rounded-full flex items-center justify-center mb-4 text-tdmh-blue dark:text-blue-400">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+            </div>
+            <h3 class="text-xl font-black text-gray-900 dark:text-white mb-1">Security Lock</h3>
+            <p class="text-xs font-semibold text-gray-500 mb-6" id="pwd-modal-desc">Enter password to continue.</p>
+            
+            <div class="relative mb-6">
+                <input type="password" id="host-pwd-input" class="w-full p-3.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl outline-none text-base pr-12 font-medium tracking-wide" placeholder="Password">
+                <button type="button" id="toggle-pwd-btn" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-tdmh-blue transition-colors p-2">
+                    <svg id="eye-icon-closed" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg>
+                    <svg id="eye-icon-open" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.543 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                </button>
+            </div>
+            
+            <div class="flex gap-3">
+                <button id="pwd-modal-cancel" class="w-1/2 text-sm text-gray-600 dark:text-gray-300 font-semibold py-3 rounded-xl bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 transition">Cancel</button>
+                <button id="pwd-modal-submit" class="w-1/2 bg-tdmh-blue hover:bg-blue-800 text-white py-3 rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center">Verify</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="signature-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center hidden z-[60] no-print">        <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-2xl max-w-md w-full mx-4 border border-gray-100">
             <div class="flex justify-between items-center mb-6">
                 <div>
                     <h3 class="text-xl font-black text-gray-900 dark:text-white">Verified Signature</h3>
@@ -595,10 +619,12 @@
         let activeMeetingState = null;
         let idleTimeout = null; // Screensaver tracker
         let attendanceChart = null; // Chart variable
+        let systemAttendees = []; // Global list of attendees
+        let pwdResolve = null; // For the password modal
         
         const views = ['view-setup', 'view-qrcode', 'view-attendance', 'view-login', 'view-dashboard-tier1', 'view-dashboard-tier2'].map(id => document.getElementById(id));
 
-        // AUTO-CAPITALIZATION & SMART AUTOCOMPLETE
+        // AUTO-CAPITALIZATION & GLOBAL SMART AUTOCOMPLETE
         document.getElementById('participant-name').addEventListener('input', function(e) {
             // 1. Capitalize first letters automatically
             let words = this.value.split(' ');
@@ -609,17 +635,35 @@
             }
             this.value = words.join(' ');
 
-            // 2. Smart Autocomplete: Match name to last session
-            const savedProfile = JSON.parse(localStorage.getItem('tdmh_profile'));
-            if (savedProfile && savedProfile.name && savedProfile.name.toLowerCase() === this.value.toLowerCase()) {
-                document.getElementById('participant-email').value = savedProfile.email || '';
-                document.getElementById('participant-department').value = savedProfile.dept || '';
-            } else {
+            const currentInput = this.value.toLowerCase().trim();
+            let foundMatch = false;
+
+            // 2. Global Autocomplete: Check database for past attendees
+            if (systemAttendees.length > 0) {
+                const match = systemAttendees.find(a => a.name.toLowerCase() === currentInput);
+                if (match) {
+                    document.getElementById('participant-email').value = match.email || '';
+                    document.getElementById('participant-department').value = match.dept || '';
+                    foundMatch = true;
+                }
+            }
+
+            // 3. Fallback to Local Profile if no global match
+            if (!foundMatch) {
+                const savedProfile = JSON.parse(localStorage.getItem('tdmh_profile'));
+                if (savedProfile && savedProfile.name && savedProfile.name.toLowerCase() === currentInput) {
+                    document.getElementById('participant-email').value = savedProfile.email || '';
+                    document.getElementById('participant-department').value = savedProfile.dept || '';
+                    foundMatch = true;
+                }
+            }
+
+            // 4. Clear fields if name doesn't match to prevent wrong dept submission
+            if (!foundMatch) {
                 document.getElementById('participant-email').value = '';
                 document.getElementById('participant-department').value = '';
             }
-        });
-        const htmlEl = document.documentElement;
+        });        const htmlEl = document.documentElement;
 
         // ==================== OFFLINE SAFETY NET (INDEXEDDB) ====================
         let offlineDB;
@@ -773,8 +817,8 @@
                 if(data.success) {
                     systemDepts = data.departments;
                     systemTemplates = data.templates;
-                }
-            } catch(e) {
+                    systemAttendees = data.attendees || [];
+                }            } catch(e) {
                 // SILENT FALLBACK: Guaranteed to fire if Network/CORS blocks the connection
                 systemDepts = ["HR", "Nursing", "Pharmacy", "CQI", "Training & Development", "Admin", "IT", "Maintenance", "GSD Maintenance & Elevator"];
                 systemTemplates = [
@@ -948,16 +992,66 @@
             window.open(url.toString(), '_blank');
         });
         
+        // CUSTOM PASSWORD MODAL LOGIC
+        const pwdModal = document.getElementById('host-password-modal');
+        const pwdInput = document.getElementById('host-pwd-input');
+        const togglePwdBtn = document.getElementById('toggle-pwd-btn');
+        const eyeOpen = document.getElementById('eye-icon-open');
+        const eyeClosed = document.getElementById('eye-icon-closed');
+
+        togglePwdBtn.addEventListener('click', () => {
+            if (pwdInput.type === 'password') {
+                pwdInput.type = 'text';
+                eyeOpen.classList.add('hidden');
+                eyeClosed.classList.remove('hidden');
+            } else {
+                pwdInput.type = 'password';
+                eyeOpen.classList.remove('hidden');
+                eyeClosed.classList.add('hidden');
+            }
+        });
+
+        function closePasswordModal() {
+            pwdModal.classList.add('hidden');
+            pwdInput.value = '';
+            if (pwdResolve) pwdResolve(null);
+        }
+
+        document.getElementById('pwd-modal-cancel').addEventListener('click', closePasswordModal);
+        document.getElementById('pwd-modal-submit').addEventListener('click', () => {
+            if (pwdResolve) pwdResolve(pwdInput.value);
+        });
+
+        function getPasswordFromModal(actionName) {
+            return new Promise((resolve) => {
+                document.getElementById('pwd-modal-desc').innerText = `Enter password for ${userRole} to ${actionName}.`;
+                pwdInput.value = '';
+                pwdInput.type = 'password';
+                eyeOpen.classList.remove('hidden');
+                eyeClosed.classList.add('hidden');
+                pwdModal.classList.remove('hidden');
+                setTimeout(() => pwdInput.focus(), 100);
+                pwdResolve = resolve;
+            });
+        }
+
         // HOST DASHBOARD LOCK (PASSWORD REQUIRED)
         async function verifyHostAction(actionName) {
-            const pass = prompt(`Security Lock: Enter the password for ${userRole} to ${actionName}.`);
+            const pass = await getPasswordFromModal(actionName);
             if (!pass) return false;
             
+            const submitBtn = document.getElementById('pwd-modal-submit');
+            submitBtn.innerHTML = `<div class="loader"></div>`;
+            submitBtn.disabled = true;
+            
             try {
-                showNotification(`Verifying password...`, "info");
                 const res = await fetch(`${APPS_SCRIPT_URL}?action=login&user=${encodeURIComponent(userRole)}&pass=${encodeURIComponent(pass)}`);
                 const data = await res.json();
                 
+                pwdModal.classList.add('hidden');
+                submitBtn.innerHTML = 'Verify';
+                submitBtn.disabled = false;
+
                 if (data.success) {
                     return true;
                 } else {
@@ -965,6 +1059,9 @@
                     return false;
                 }
             } catch (e) {
+                pwdModal.classList.add('hidden');
+                submitBtn.innerHTML = 'Verify';
+                submitBtn.disabled = false;
                 showNotification("Connection error while verifying.", "error");
                 return false;
             }
@@ -975,6 +1072,33 @@
             switchView('view-setup');
         });
 
+        document.getElementById('btn-end-meeting').addEventListener('click', async () => {
+            if (!(await verifyHostAction("end the meeting"))) return;
+            
+            showNotification("Ending meeting and syncing to database... Please wait.", "info");
+            document.getElementById('btn-end-meeting').disabled = true;
+
+            activeMeetingState = null;
+            meetingStartTime = null;
+            localAttendanceList = []; // Clear duplicate tracker
+            localStorage.removeItem('tdmh_active_meeting');
+            localStorage.removeItem('tdmh_meeting_start'); 
+            
+            // CRITICAL FIX: Delete cache so dashboard is forced to fetch fresh data
+            sessionStorage.removeItem('tdmh_dashboard_cache');
+
+            document.getElementById('btn-resume-meeting').classList.add('hidden');
+            document.getElementById('setup-form').reset();
+            document.getElementById('setup-host').dispatchEvent(new Event('change'));
+            
+            // 2.5 SECOND DELAY: Gives Google Sheets time to save the final record before loading dashboard!
+            setTimeout(() => {
+                document.getElementById('btn-end-meeting').disabled = false;
+                showNotification("Meeting ended successfully.", "success");
+                setupTier1Dashboard();
+                switchView('view-dashboard-tier1');
+            }, 2500);
+        });
         document.getElementById('btn-end-meeting').addEventListener('click', async () => {
             if (!(await verifyHostAction("end the meeting"))) return;
             
@@ -998,16 +1122,22 @@
             }
         });
 
+        // BROWSER REFRESH GUARDRAIL
+        window.addEventListener('beforeunload', (e) => {
+            if (activeMeetingState) {
+                e.preventDefault();
+                e.returnValue = "An active meeting is running. Refreshing may disrupt the timer. Are you sure?";
+            }
+        });
+
         // CANCEL / RETURN GUARDRAIL
-        document.getElementById('btn-back-to-qr').addEventListener('click', () => {
-            if(confirm("Are you sure you want to return? Please ensure all attendees have signed in before leaving this screen.")) {
-                switchView('view-qrcode');
+        document.getElementById('btn-back-to-qr').addEventListener('click', () => {                switchView('view-qrcode');
             }
         });
 
         function startLiveFeed(sub, ven, mod) {
-            const listEl = document.getElementById('live-feed-list');
-            const countEl = document.getElementById('live-headcount');
+            stopLiveFeed(); // Fixes stacking/freezing on manual refresh
+            const listEl = document.getElementById('live-feed-list');            const countEl = document.getElementById('live-headcount');
             listEl.innerHTML = '<div class="text-center text-gray-400 italic text-sm mt-10">Waiting for attendees...</div>';
             countEl.innerText = '0';
             
@@ -1313,10 +1443,16 @@
                     sessionStorage.setItem('tdmh_dashboard_cache', JSON.stringify(cachedData));
                     renderFolders();
                 }
-            } catch (error) {} 
-            finally { document.getElementById('tier1-loader').classList.add('hidden'); document.getElementById('tier1-loader').classList.remove('flex'); }
+            } catch (error) {
+                showNotification("Sync delayed. Showing last known records.", "error");
+            } 
+            finally { 
+                document.getElementById('tier1-loader').classList.add('hidden'); 
+                document.getElementById('tier1-loader').classList.remove('flex'); 
+                // Fallback to render whatever was there before it failed
+                if (cachedData.length > 0) renderFolders();
+            }
         }
-
         function renderFolders() {
             const container = document.getElementById('meeting-folders-container');
             const activeContainer = document.getElementById('active-meetings-container');
