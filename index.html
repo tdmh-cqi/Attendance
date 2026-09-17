@@ -1099,21 +1099,6 @@
                 switchView('view-dashboard-tier1');
             }, 2500);
         });
-        document.getElementById('btn-end-meeting').addEventListener('click', async () => {
-            if (!(await verifyHostAction("end the meeting"))) return;
-            
-            activeMeetingState = null;
-            meetingStartTime = null;
-            localAttendanceList = []; // Clear duplicate tracker
-            localStorage.removeItem('tdmh_active_meeting');
-            localStorage.removeItem('tdmh_meeting_start'); // CLEAR THE STOPWATCH MEMORY
-            document.getElementById('btn-resume-meeting').classList.add('hidden');
-            document.getElementById('setup-form').reset();
-            document.getElementById('setup-host').dispatchEvent(new Event('change'));
-            showNotification("Meeting ended and cleared.", "info");
-            switchView('view-setup');
-        });
-
         document.getElementById('btn-resume-meeting').addEventListener('click', () => {
             if(activeMeetingState) {
                 generateQROnScreen(activeMeetingState.s, activeMeetingState.v, activeMeetingState.m, activeMeetingState.h);
@@ -1131,10 +1116,11 @@
         });
 
         // CANCEL / RETURN GUARDRAIL
-        document.getElementById('btn-back-to-qr').addEventListener('click', () => {                switchView('view-qrcode');
+        document.getElementById('btn-back-to-qr').addEventListener('click', () => {
+            if(confirm("Are you sure you want to return? Please ensure all attendees have signed in before leaving this screen.")) {
+                switchView('view-qrcode');
             }
         });
-
         function startLiveFeed(sub, ven, mod) {
             stopLiveFeed(); // Fixes stacking/freezing on manual refresh
             const listEl = document.getElementById('live-feed-list');            const countEl = document.getElementById('live-headcount');
