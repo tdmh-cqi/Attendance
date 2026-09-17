@@ -178,8 +178,6 @@
         ⚠️ Working Offline - Signatures will sync automatically when Wi-Fi returns
     </div>
 
-    <!-- Kiosk Screensaver Removed for Optimization -->
-
     <!-- Smooth Theme Transition Overlay with Branded Text -->
     <div id="theme-overlay" class="theme-overlay no-print flex items-center justify-center">
         <div id="theme-overlay-text-bg" class="px-8 py-5 rounded-[2rem] transition-all duration-300 flex items-center justify-center">
@@ -209,7 +207,6 @@
             </button>
 
             <div id="nav-login-group" class="flex gap-2 hidden">
-                <!-- Buttons removed for Bank Vault strictness -->
             </div>
             <div id="nav-logged-in-group" class="flex gap-2 hidden">
                 <button id="nav-dashboard-btn" class="px-3 md:px-5 py-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-tdmh-blue dark:text-blue-400 rounded-lg shadow-sm hover:shadow-md transition-all text-xs md:text-sm font-bold tracking-wide">
@@ -318,10 +315,6 @@
                                 End Meeting
                             </button>
                         </div>
-                        <button id="btn-record-audio" class="w-full mt-1 bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white p-3 rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2">
-                            <svg class="w-4 h-4 text-red-500 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clip-rule="evenodd"></path></svg>
-                            Start Audio Recording
-                        </button>
                     </div>
                 </div>
                 
@@ -383,14 +376,6 @@
                         </div>
                     </div>
 
-                    <div class="flex items-start gap-3 mt-2 bg-blue-50/50 dark:bg-blue-900/10 p-4 rounded-xl border border-blue-100 dark:border-blue-800/30">
-                        <input type="checkbox" id="remember-me" class="mt-1 w-4 h-4 text-tdmh-accent rounded border-gray-300">
-                        <div>
-                            <label for="remember-me" class="text-sm font-bold text-tdmh-blue dark:text-blue-300 cursor-pointer select-none">Remember my details</label>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">Saves your name and dept. <strong class="text-red-500">Do not check this if using a shared tablet.</strong></p>
-                        </div>
-                    </div>
-
                     <div class="mt-8">
                         <label class="block text-sm font-semibold mb-3 flex justify-between items-center text-gray-700 dark:text-gray-300">
                             <span>Digital Signature <span class="text-red-500">*</span></span>
@@ -400,14 +385,13 @@
                         <p class="text-[11px] text-gray-400 mt-2 text-center uppercase font-semibold">Please sign within the dotted box</p>
                     </div>
 
-                    <div class="flex items-start gap-3 mt-6 bg-gray-50 dark:bg-slate-900 p-5 rounded-xl border border-gray-200 dark:border-slate-700">
-                        <input type="checkbox" id="dpa-consent" required class="mt-1 w-5 h-5 text-tdmh-accent rounded border-gray-300 cursor-pointer">
-                        <label for="dpa-consent" class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed cursor-pointer select-none">
-                            <strong class="text-gray-800 dark:text-gray-200">Data Privacy Consent:</strong> By checking this box, I consent that TDMH may process my personal information in accordance with the Data Privacy Act of 2012 (RA 10173).
-                        </label>
+                    <div class="mt-6 text-center px-4">
+                        <p class="text-[10px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                            <strong class="text-gray-700 dark:text-gray-300">Data Privacy Consent:</strong> By clicking submit, I consent that TDMH may process my personal information in accordance with the Data Privacy Act of 2012 (RA 10173).
+                        </p>
                     </div>
 
-                    <div class="mt-6 flex flex-col gap-3">
+                    <div class="mt-4 flex flex-col gap-3">
                         <button type="submit" id="submit-btn" class="w-full bg-tdmh-blue hover:bg-blue-800 text-white p-4 rounded-xl font-bold text-lg shadow-xl active:scale-[0.98]">
                             Submit Secure Attendance
                         </button>
@@ -420,7 +404,7 @@
         </div>
 
         <!-- ==================== LOGIN VIEW ==================== -->
-        <div id="view-login" class="p-8 md:p-16 flex flex-col items-center justify-center min-h-[500px]">
+        <div id="view-login" class="hidden p-8 md:p-16 flex flex-col items-center justify-center min-h-[500px]">
             <div class="w-full max-w-sm mx-auto bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col items-center">
                 <div class="w-16 h-16 bg-tdmh-light dark:bg-slate-700 rounded-full flex items-center justify-center mb-4 text-tdmh-blue dark:text-blue-400">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
@@ -538,25 +522,6 @@
                     <div class="col-span-2"><span class="font-bold uppercase text-gray-500 text-xs">Hosting Entity:</span> <span id="t2-host" class="block font-bold text-tdmh-blue dark:text-blue-400"></span></div>
                 </div>
 
-                <!-- In-App Audio Player Section (Hidden until linked) -->
-                <div id="t2-audio-section" class="mb-8 hidden no-print">
-                    <div class="bg-tdmh-light/40 dark:bg-slate-800 rounded-2xl p-4 md:p-6 border border-tdmh-blue/20 dark:border-slate-600 flex flex-col md:flex-row items-center gap-5 shadow-sm">
-                        <div class="w-14 h-14 rounded-full bg-tdmh-blue text-white flex items-center justify-center shrink-0 shadow-inner">
-                            <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20"><path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.28l8-1.6V11.114A4.369 4.369 0 0015 11c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"></path></svg>
-                        </div>
-                        <div class="flex-1 w-full text-center md:text-left">
-                            <h4 class="font-bold text-gray-900 dark:text-white text-lg">Meeting Audio Recording</h4>
-                            <p class="text-xs font-semibold uppercase tracking-widest text-tdmh-accent dark:text-blue-400 mb-3">Synced Securely</p>
-                            <audio id="t2-audio-player" controls class="w-full h-10 rounded-lg outline-none"></audio>
-                        </div>
-                        <div class="flex-shrink-0 w-full md:w-auto">
-                            <a id="t2-audio-download" href="#" target="_blank" class="w-full md:w-auto px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-bold rounded-xl shadow-md hover:scale-105 transition-transform flex items-center justify-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg> Download
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="font-bold mb-2 uppercase text-gray-800 dark:text-white flex justify-between items-end border-b border-gray-300 pb-2">
                     <span>Attendee Roster</span>
                     <span class="text-sm bg-gray-200 dark:bg-slate-700 px-3 py-1 rounded-full" id="t2-count">0 Attendees</span>
@@ -630,11 +595,30 @@
         let activeMeetingState = null;
         let idleTimeout = null; // Screensaver tracker
         let attendanceChart = null; // Chart variable
-        let mediaRecorder = null; // Audio recorder
-        let audioChunks = [];
-        let isRecording = false;
         
         const views = ['view-setup', 'view-qrcode', 'view-attendance', 'view-login', 'view-dashboard-tier1', 'view-dashboard-tier2'].map(id => document.getElementById(id));
+
+        // AUTO-CAPITALIZATION & SMART AUTOCOMPLETE
+        document.getElementById('participant-name').addEventListener('input', function(e) {
+            // 1. Capitalize first letters automatically
+            let words = this.value.split(' ');
+            for (let i = 0; i < words.length; i++) {
+                if (words[i].length > 0) {
+                    words[i] = words[i][0].toUpperCase() + words[i].substr(1).toLowerCase();
+                }
+            }
+            this.value = words.join(' ');
+
+            // 2. Smart Autocomplete: Match name to last session
+            const savedProfile = JSON.parse(localStorage.getItem('tdmh_profile'));
+            if (savedProfile && savedProfile.name && savedProfile.name.toLowerCase() === this.value.toLowerCase()) {
+                document.getElementById('participant-email').value = savedProfile.email || '';
+                document.getElementById('participant-department').value = savedProfile.dept || '';
+            } else {
+                document.getElementById('participant-email').value = '';
+                document.getElementById('participant-department').value = '';
+            }
+        });
         const htmlEl = document.documentElement;
 
         // ==================== OFFLINE SAFETY NET (INDEXEDDB) ====================
@@ -802,13 +786,6 @@
                 restoreDrafts();
             }
 
-            const savedProfile = JSON.parse(localStorage.getItem('tdmh_profile'));
-            if(savedProfile) {
-                document.getElementById('participant-name').value = savedProfile.name || '';
-                setTimeout(() => document.getElementById('participant-department').value = savedProfile.dept || '', 500);
-                document.getElementById('remember-me').checked = true;
-            }
-
             const params = new URLSearchParams(window.location.search);
             if(params.has('s') && params.has('v')) {
                 document.getElementById('display-subject').innerText = params.get('s');
@@ -826,8 +803,9 @@
                     setupTier1Dashboard();
                     switchView('view-dashboard-tier1');
                 } else {
-                    // ENTERPRISE LOCK: The HTML naturally loads the Login screen now.
+                    // ENTERPRISE LOCK: No session found, show the login portal.
                     document.getElementById('nav-login-group').classList.add('hidden');
+                    switchView('view-login');
                 }
                 
                 // Smart Function: Restore Active Meeting visually if they refreshed
@@ -845,8 +823,6 @@
             }
         }
         initApp();
-
-        // --- Screensaver Logic Completely Removed for Maximum Performance ---
 
         setInterval(() => {
             const now = new Date();
@@ -972,79 +948,46 @@
             window.open(url.toString(), '_blank');
         });
         
-        document.getElementById('btn-edit-meeting').addEventListener('click', () => {
+        // HOST DASHBOARD LOCK (PASSWORD REQUIRED)
+        async function verifyHostAction(actionName) {
+            const pass = prompt(`Security Lock: Enter the password for ${userRole} to ${actionName}.`);
+            if (!pass) return false;
+            
+            try {
+                showNotification(`Verifying password...`, "info");
+                const res = await fetch(`${APPS_SCRIPT_URL}?action=login&user=${encodeURIComponent(userRole)}&pass=${encodeURIComponent(pass)}`);
+                const data = await res.json();
+                
+                if (data.success) {
+                    return true;
+                } else {
+                    showNotification("Incorrect password. Access denied.", "error");
+                    return false;
+                }
+            } catch (e) {
+                showNotification("Connection error while verifying.", "error");
+                return false;
+            }
+        }
+
+        document.getElementById('btn-edit-meeting').addEventListener('click', async () => {
+            if (!(await verifyHostAction("edit details"))) return;
+            switchView('view-setup');
+        });
+
+        document.getElementById('btn-end-meeting').addEventListener('click', async () => {
+            if (!(await verifyHostAction("end the meeting"))) return;
+            
             activeMeetingState = null;
             meetingStartTime = null;
             localAttendanceList = []; // Clear duplicate tracker
             localStorage.removeItem('tdmh_active_meeting');
+            localStorage.removeItem('tdmh_meeting_start'); // CLEAR THE STOPWATCH MEMORY
             document.getElementById('btn-resume-meeting').classList.add('hidden');
             document.getElementById('setup-form').reset();
             document.getElementById('setup-host').dispatchEvent(new Event('change'));
             showNotification("Meeting ended and cleared.", "info");
             switchView('view-setup');
-        });
-
-        document.getElementById('btn-record-audio').addEventListener('click', async () => {
-            const btn = document.getElementById('btn-record-audio');
-            
-            if (!isRecording) {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    mediaRecorder = new MediaRecorder(stream);
-                    audioChunks = [];
-                    
-                    mediaRecorder.ondataavailable = e => { if(e.data.size > 0) audioChunks.push(e.data); };
-                    
-                    mediaRecorder.onstop = async () => {
-                        btn.innerHTML = `<div class="loader mr-2"></div> Uploading...`;
-                        btn.disabled = true;
-                        
-                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                        const reader = new FileReader();
-                        reader.readAsDataURL(audioBlob);
-                        reader.onloadend = async () => {
-                            const base64Audio = reader.result;
-                            const payload = {
-                                action: "uploadAudio",
-                                subject: activeMeetingState.s,
-                                venue: activeMeetingState.v,
-                                moderator: activeMeetingState.m,
-                                hostEntity: activeMeetingState.h,
-                                filename: `TDMH_Audio_${activeMeetingState.s.replace(/[^a-z0-9]/gi, '_')}_${Date.now()}.webm`,
-                                mimeType: 'audio/webm',
-                                audioBase64: base64Audio
-                            };
-                            
-                            try {
-                                const res = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
-                                const data = await res.json();
-                                if(data.status === 'success') showNotification("Audio securely saved to Drive!", "success");
-                                else showNotification("Audio upload failed.", "error");
-                            } catch(e) { showNotification("Network error on upload.", "error"); }
-                            finally {
-                                btn.innerHTML = `<svg class="w-4 h-4 text-red-500 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clip-rule="evenodd"></path></svg> Start Audio Recording`;
-                                btn.classList.replace('bg-red-600', 'bg-slate-800');
-                                btn.classList.replace('hover:bg-red-700', 'hover:bg-slate-900');
-                                btn.disabled = false;
-                            }
-                        };
-                    };
-                    
-                    mediaRecorder.start();
-                    isRecording = true;
-                    btn.innerHTML = `🛑 Stop & Save Recording`;
-                    btn.classList.replace('bg-slate-800', 'bg-red-600');
-                    btn.classList.replace('hover:bg-slate-900', 'hover:bg-red-700');
-                    showNotification("Microphone live. Recording started.", "info");
-                    
-                } catch (err) {
-                    showNotification("Microphone access denied. Check browser permissions.", "error");
-                }
-            } else {
-                mediaRecorder.stop();
-                mediaRecorder.stream.getTracks().forEach(t => t.stop());
-                isRecording = false;
-            }
         });
 
         document.getElementById('btn-resume-meeting').addEventListener('click', () => {
@@ -1055,7 +998,12 @@
             }
         });
 
-        document.getElementById('btn-back-to-qr').addEventListener('click', () => switchView('view-qrcode'));
+        // CANCEL / RETURN GUARDRAIL
+        document.getElementById('btn-back-to-qr').addEventListener('click', () => {
+            if(confirm("Are you sure you want to return? Please ensure all attendees have signed in before leaving this screen.")) {
+                switchView('view-qrcode');
+            }
+        });
 
         function startLiveFeed(sub, ven, mod) {
             const listEl = document.getElementById('live-feed-list');
@@ -1065,7 +1013,15 @@
             
             const today = new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
             
-            if (!meetingStartTime) meetingStartTime = Date.now();
+            // STOPWATCH RECOVERY
+            const savedStart = localStorage.getItem('tdmh_meeting_start');
+            if (savedStart) {
+                meetingStartTime = parseInt(savedStart);
+            } else {
+                meetingStartTime = Date.now();
+                localStorage.setItem('tdmh_meeting_start', meetingStartTime);
+            }
+
             stopwatchInterval = setInterval(() => {
                 const diff = Date.now() - meetingStartTime;
                 const hrs = Math.floor(diff / 3600000).toString().padStart(2, '0');
@@ -1144,11 +1100,10 @@
             }
             const dept = document.getElementById('participant-department').value;
             const email = document.getElementById('participant-email').value;
-            const remember = document.getElementById('remember-me').checked;
             const btn = document.getElementById('submit-btn');
 
-            if(remember) localStorage.setItem('tdmh_profile', JSON.stringify({name: name, dept: dept}));
-            else localStorage.removeItem('tdmh_profile');
+            // SMART AUTOCOMPLETE: Silently save profile for next time (except signature)
+            localStorage.setItem('tdmh_profile', JSON.stringify({name: name, dept: dept, email: email}));
 
             const payload = {
                 subject: document.getElementById('display-subject').innerText,
@@ -1189,7 +1144,6 @@
                     // Regular phone users get normal close prompt
                     actionText.innerHTML = `You may now close this browser tab.`;
                     document.getElementById('attendance-form').reset();
-                    if(remember) { document.getElementById('participant-name').value = name; document.getElementById('participant-department').value = dept; document.getElementById('remember-me').checked = true; }
                     document.getElementById('btn-clear-sig').click();
                 }
             }
@@ -1351,8 +1305,8 @@
                         let dDate = r[0]; let dTime = r[1];
                         if (typeof dDate === 'string' && dDate.includes('T')) { const pd = new Date(dDate); if (!isNaN(pd)) dDate = pd.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }); }
                         if (typeof dTime === 'string' && dTime.includes('T')) { const pt = new Date(dTime); if (!isNaN(pt)) dTime = pt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); }
-                        // Added `audio: r[10]` to fetch the link
-                        return { date: dDate, time: dTime, subject: r[2], venue: r[3], moderator: r[4], name: r[5], dept: r[6], email: r[7], host: r[8], sig: r[9], audio: r[10] };
+                        // Audio column was deleted, stopped reading r[10] here
+                        return { date: dDate, time: dTime, subject: r[2], venue: r[3], moderator: r[4], name: r[5], dept: r[6], email: r[7], host: r[8], sig: r[9] };
                     }).reverse();
                     
                     // Save to browser temporary memory
@@ -1482,21 +1436,6 @@
             document.getElementById('t2-host').innerText = parts[3];
             document.getElementById('t2-mod').innerText = parts[4];
             document.getElementById('t2-count').innerText = `${attendees.length} Attendees`;
-
-            // Check if meeting has an audio link
-            const audioLink = attendees.length > 0 && attendees[0].audio ? attendees[0].audio : null;
-            const audioSection = document.getElementById('t2-audio-section');
-            if(audioLink) {
-                audioSection.classList.remove('hidden');
-                // The viewer replaces the standard drive link with a direct stream link
-                const streamLink = audioLink.replace(/\/view.*$/, '/preview'); 
-                document.getElementById('t2-audio-player').src = streamLink;
-                document.getElementById('t2-audio-download').href = audioLink;
-            } else {
-                audioSection.classList.add('hidden');
-                document.getElementById('t2-audio-player').src = "";
-                document.getElementById('t2-audio-download').href = "#";
-            }
 
             document.getElementById('t2-tbody').innerHTML = attendees.map((r, i) => `
                 <tr class="border-b border-gray-100 dark:border-slate-700">
